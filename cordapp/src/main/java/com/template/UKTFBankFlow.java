@@ -12,11 +12,11 @@ import static net.corda.core.contracts.ContractsDSL.requireThat;
 
 // Define ExporterFlow:
 @InitiatedBy(UKTFFlow.class) //This is who initiates this flow (aka receiving a message from an Initiator from another class)
-public class UKTFExporterFlow extends FlowLogic<Void> { //Extending the class for defining flows
+public class UKTFBankFlow extends FlowLogic<Void> { //Extending the class for defining flows
 
     private final FlowSession otherPartySession;
 
-    public UKTFExporterFlow(FlowSession otherPartySession) {
+    public UKTFBankFlow(FlowSession otherPartySession) {
         this.otherPartySession = otherPartySession;
     }
 

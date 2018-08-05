@@ -17,10 +17,7 @@ import java.util.List;
 
 import static com.template.UKTFContract.UKTF_CONTRACT_ID;
 
-/**
- * Define your flow here.
- */
-// Replace TemplateFlow's definition with:
+
 @InitiatingFlow //startable by the node
 @StartableByRPC //startable via RPC
 public class UKTFFlow extends FlowLogic<Void> {
@@ -32,9 +29,9 @@ public class UKTFFlow extends FlowLogic<Void> {
      */
     private final ProgressTracker progressTracker = new ProgressTracker();
 
-    public UKTFFlow(Integer bondValue, Party otherParty) {
+    public UKTFFlow(Integer bondValue, Party bank) {
         this.bondValue = bondValue;
-        this.otherParty = otherParty; //the node running the flow is the exporter (this one is the bank, that need to sign the transaction)
+        this.otherParty = bank; //the node running the flow is the exporter (this one is the bank, that need to sign the transaction)
     }
 
     @Override

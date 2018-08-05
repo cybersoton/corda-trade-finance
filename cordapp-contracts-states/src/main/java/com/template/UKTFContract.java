@@ -1,8 +1,8 @@
 package com.template;
 
 import com.google.common.collect.ImmutableList;
+import net.corda.core.contracts.Command;
 import net.corda.core.contracts.CommandData;
-import net.corda.core.contracts.CommandWithParties;
 import net.corda.core.contracts.Contract;
 import net.corda.core.identity.Party;
 import net.corda.core.transactions.LedgerTransaction;
@@ -10,7 +10,6 @@ import net.corda.core.transactions.LedgerTransaction;
 import java.security.PublicKey;
 import java.util.List;
 
-import static net.corda.core.contracts.ContractsDSL.requireSingleCommand;
 import static net.corda.core.contracts.ContractsDSL.requireThat;
 
 
@@ -20,15 +19,10 @@ public class UKTFContract implements Contract {
     public static final String UKTF_CONTRACT_ID = "com.template.UKTFContract";
 
 
-    /*
-     * All command must implement the interface CommandData.
-     * This allow to have that different check can be done according to the type of command
-     */
-
     public static class Commands implements CommandData {
 
         /**
-         * The command create: issued by the exporter towards a bank and the UKEF.
+         * The command create: issued by the exporter towards a bank (UKEF is added by the bank)
          * All the three parties must be singners
          */
         public static class Create implements CommandData {
@@ -63,41 +57,55 @@ public class UKTFContract implements Contract {
 
     }
 
-
-    /*
-     * A transaction is considered valid if the verify() function of the contract of each of the transaction's input
-     * and output states does not throw an exception.
-     */
     @Override
     public void verify(LedgerTransaction tx) {
 
-        /*
-         * To get get access to the transaction tx. inputs | outputs | commands
-         */
+        if (tx.getCommands().size() != 1) {
+            throw new IllegalArgumentException("Illegal number of commands");
+        }
 
-        // requireSingleCommand checks if the transaction contains only one single command
-        final CommandWithParties<Commands.Create> command = requireSingleCommand(tx.getCommands(), UKTFContract.Commands.Create.class);
+        Command<CommandData> command = tx.getCommand(0);
+        if (command.equals(new Commands.Create())) {
 
-        requireThat(check -> {
-            // Constraints on the shape of the transaction.
-            check.using("No inputs should be consumed when issuing an IOU.", tx.getInputs().isEmpty());
-            check.using("There should be one output state of type IOUState.", tx.getOutputs().size() == 1);
+            requireThat(check -> {
 
-            // checking generated state
-            final UKTFState out = tx.outputsOfType(UKTFState.class).get(0);
-            final Party exporter = out.getExporter();
-            final Party bank = out.getBank();
-            check.using("The bond's value must be non-negative.", out.getBondValue() > 0);
-            check.using("The parties involved cannot be the same entity.", exporter != bank);
+                // Constraints on the states.
+                check.using("No inputs should be consumed when issuing bond application", tx.getInputs().isEmpty());
+                check.using("There should be one output state of type UKTFState.", tx.getOutputs().size() == 1);
+                final UKTFState out = tx.outputsOfType(UKTFState.class).get(0);
+                check.using("The bond's value must be non-negative.", out.getBondValue() > 0);
 
-            // checking that signers are different
-            final List<PublicKey> signers = command.getSigners();
-            check.using("There must be two signers.", signers.size() == 2);
-            check.using("All parties involved must be signers.", signers.containsAll(
-                    ImmutableList.of(exporter.getOwningKey(), bank.getOwningKey())));
+                //signers
+                final Party exporter = out.getExporter();
+                final Party bank = out.getBank();
+                check.using("The parties involved cannot be the same entity.", exporter != bank);
 
-            return null;
-        });
+                final List<PublicKey> signers = command.getSigners();
+                check.using("There must be two signers.", signers.size() == 2);
+                check.using("All parties involved must be signers.", signers.containsAll(
+                        ImmutableList.of(exporter.getOwningKey(), bank.getOwningKey())));
+
+                return null;
+            });
+
+        } else if (command.equals(new Commands.BankAssess())){
+
+            requireThat(check -> {
+
+                return null;
+            });
+
+        } else if (command.equals(new Commands.UKEFAssess())){
+
+            requireThat(check -> {
+
+                return null;
+            });
+
+        } else {
+            throw new IllegalArgumentException("Unrecognised command");
+        }
+
     }
 
 
