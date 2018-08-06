@@ -35,13 +35,13 @@ public class UKTFBond implements ContractState {
 
 
     @ConstructorForDeserialization
-    public UKTFBond(String bondID, int bondValue, Party exporter, Party bank, Party ukef, String bankContract, double exporterTurnover, double exporterNet, int bankRiskLevel, double bankCreditScore, String UKEFContract, boolean isUKEFSupported) {
+    public UKTFBond(String bondID, int bondValue, Party exporter, Party bank, Party ukef, String bankSupplyContractID, double exporterTurnover, double exporterNet, int bankRiskLevel, double bankCreditScore, String UKEFContract, boolean isUKEFSupported) {
         this.bondID = bondID;
         this.bondValue = bondValue;
         this.exporter = exporter;
         this.bank = bank;
         this.ukef = ukef;
-        this.bankSupplyContractID = bankContract;
+        this.bankSupplyContractID = bankSupplyContractID;
         this.exporterTurnover = exporterTurnover;
         this.exporterNet = exporterNet;
         this.bankRiskLevel = bankRiskLevel;
