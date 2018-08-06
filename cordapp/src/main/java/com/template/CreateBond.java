@@ -20,7 +20,9 @@ import static net.corda.core.contracts.ContractsDSL.requireThat;
 
 @InitiatingFlow
 @StartableByRPC
-public class UKTFFlow extends FlowLogic<Void> {
+public class CreateBond extends FlowLogic<Void> {
+
+    private final String externalBondID;
     private final Integer bondValue;
     /* the node running the flow is the exporter (this one is the bank, that need to sign the transaction) */
     private final Party bank;
@@ -53,8 +55,9 @@ public class UKTFFlow extends FlowLogic<Void> {
             FINALISING_TRANSACTION
     );
 
-    public UKTFFlow(Integer bondValue, Party bank, Party ukef
+    public CreateBond(String bondId, Integer bondValue, Party bank, Party ukef
     ) {
+        this.externalBondID = bondId;
         this.bondValue = bondValue;
         this.bank = bank;
         this.ukef = ukef;
@@ -75,7 +78,7 @@ public class UKTFFlow extends FlowLogic<Void> {
         //Stage1 - generate transaction
         progressTracker.setCurrentStep(GENERATING_EXP_TRANSACTION);
 
-        UKTFState outputState = new UKTFState(new UniqueIdentifier(), bondValue, getOurIdentity(), bank, ukef);
+        UKTFBond outputState = new UKTFBond(externalBondID, bondValue, getOurIdentity(), bank, ukef);
         List<PublicKey> requiredSigners = ImmutableList.of(getOurIdentity().getOwningKey(), bank.getOwningKey(), ukef.getOwningKey());
         final Command<UKTFContract.Commands.Create> cmd = new Command<>(new UKTFContract.Commands.Create(), requiredSigners);
         final TransactionBuilder txBuilder = new TransactionBuilder(notary)
@@ -111,7 +114,7 @@ public class UKTFFlow extends FlowLogic<Void> {
     }
 
 
-    @InitiatedBy(UKTFFlow.class)
+    @InitiatedBy(CreateBond.class)
     public static class UKTFBankFlow extends FlowLogic<Void> {
 
         private FlowSession exporter;
@@ -134,8 +137,8 @@ public class UKTFFlow extends FlowLogic<Void> {
                 protected void checkTransaction(SignedTransaction stx) {
                     requireThat(require -> {
                         ContractState output = stx.getTx().getOutputs().get(0).getData();
-                        require.using("This must be an UKTF transaction.", output instanceof UKTFState);
-                        UKTFState bond = (UKTFState) output;
+                        require.using("This must be an UKTF transaction.", output instanceof UKTFBond);
+                        UKTFBond bond = (UKTFBond) output;
                         require.using("The UKTF bond's value can't be null.", bond.getBondValue() > 0);
                         return null;
                     });
@@ -149,7 +152,7 @@ public class UKTFFlow extends FlowLogic<Void> {
         }
     }
 
-
+//
 //    @InitiatedBy(UKTFBankFlow.class)
 //    public static class UKTFUKEFFlow extends FlowLogic<Void> {
 //

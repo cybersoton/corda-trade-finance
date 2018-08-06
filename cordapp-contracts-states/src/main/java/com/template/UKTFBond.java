@@ -1,51 +1,118 @@
 package com.template;
 
-public class UKTFBond {
+import com.google.common.collect.ImmutableList;
+import net.corda.core.contracts.ContractState;
+import net.corda.core.contracts.LinearState;
+import net.corda.core.contracts.UniqueIdentifier;
+import net.corda.core.identity.AbstractParty;
+import net.corda.core.identity.Party;
+import org.jetbrains.annotations.NotNull;
 
-    private double exporterTurnover;
-    private double exporterNet;
-    private int bankRiskLevel;
-    private double bankCreditScore;
+import java.util.List;
+import java.util.UUID;
 
-    public UKTFBond() {
+
+public class UKTFBond implements ContractState {
+
+    private final UniqueIdentifier bondID;
+    private final String externalID;
+    private final int bondValue;
+    private final Party exporter;
+    private final Party bank;
+    private final Party ukef;
+
+    //bank
+    private String bankSupplyContractID;
+    private ExporterBond bondDetails;
+
+    //ukef
+    private String UKEFSupplyContractID;
+    private Boolean isUKEFSupported;
+
+
+    public UKTFBond(String bondID, int bondValue, Party exporter, Party bank, Party ukef
+    ) {
+        this.bondID = new UniqueIdentifier(bondID, UUID.randomUUID());
+        this.externalID = bondID;
+        this.bondValue = bondValue;
+        this.exporter = exporter;
+        this.bank = bank;
+        this.ukef = ukef;
     }
 
-    public UKTFBond(double exporterTurnover, double exporterNet, int bankRiskLevel, double bankCreditScore) {
-        this.exporterTurnover = exporterTurnover;
-        this.exporterNet = exporterNet;
-        this.bankRiskLevel = bankRiskLevel;
-        this.bankCreditScore = bankCreditScore;
+    public UKTFBond(String bondID, UniqueIdentifier uID, int bondValue, Party exporter, Party bank, Party ukef
+    ) {
+        this.bondID = uID;
+        this.externalID = bondID;
+        this.bondValue = bondValue;
+        this.exporter = exporter;
+        this.bank = bank;
+        this.ukef = ukef;
     }
 
-    public void setExporterTurnover(double exporterTurnover) {
-        this.exporterTurnover = exporterTurnover;
+
+    public UKTFBond bankCopy (){
+        return new UKTFBond(this.externalID, this.bondID,this.bondValue,this.exporter , this.bank, this.ukef);
     }
 
-    public void setExporterNet(double exporterNet) {
-        this.exporterNet = exporterNet;
+    public String getBankSupplyContractID() {
+        return bankSupplyContractID;
     }
 
-    public void setBankRiskLevel(int bankRiskLevel) {
-        this.bankRiskLevel = bankRiskLevel;
+    public void setBankSupplyContractID(String bankSupplyContractID) {
+        this.bankSupplyContractID = bankSupplyContractID;
     }
 
-    public void setBankCreditScore(double bankCreditScore) {
-        this.bankCreditScore = bankCreditScore;
+    public String getUKEFSupplyContractID() {
+        return UKEFSupplyContractID;
     }
 
-    public double getExporterTurnover() {
-        return exporterTurnover;
+    public void setUKEFSupplyContractID(String UKEFSupplyContractID) {
+        this.UKEFSupplyContractID = UKEFSupplyContractID;
     }
 
-    public double getExporterNet() {
-        return exporterNet;
+    public Boolean getUKEFSupported() {
+        return isUKEFSupported;
     }
 
-    public int getBankRiskLevel() {
-        return bankRiskLevel;
+    public void setUKEFSupported(Boolean UKEFSupported) {
+        isUKEFSupported = UKEFSupported;
     }
 
-    public double getBankCreditScore() {
-        return bankCreditScore;
+    public ExporterBond getBondDetails() {
+        return bondDetails;
     }
+
+    public void setBondDetails(ExporterBond bondDetails) {
+        this.bondDetails = bondDetails;
+    }
+
+    public int getBondValue() {
+        return bondValue;
+    }
+
+    public Party getExporter() {
+        return exporter;
+    }
+
+    public Party getBank() {
+        return bank;
+    }
+
+    public String getExternalID() {
+        return externalID;
+    }
+
+    @Override
+    public List<AbstractParty> getParticipants() {
+
+        return ImmutableList.of(exporter, bank, ukef
+        );
+    }
+
+    @Override
+    public String toString() {
+        return this.bondID.getId().toString();
+    }
+
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import net.corda.core.contracts.Command;
 import net.corda.core.contracts.CommandData;
 import net.corda.core.contracts.Contract;
+import net.corda.core.contracts.UniqueIdentifier;
 import net.corda.core.identity.Party;
 import net.corda.core.transactions.LedgerTransaction;
 
@@ -73,7 +74,7 @@ public class UKTFContract implements Contract {
                 // Constraints on the states.
                 check.using("No inputs should be consumed when issuing bond application", tx.getInputs().isEmpty());
                 check.using("There should be one output state of type UKTFState.", tx.getOutputs().size() == 1);
-                final UKTFState out = tx.outputsOfType(UKTFState.class).get(0);
+                final UKTFBond out = tx.outputsOfType(UKTFBond.class).get(0);
                 check.using("The bond's value must be non-negative.", out.getBondValue() > 0);
 
                 //signers
