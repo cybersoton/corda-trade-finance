@@ -75,7 +75,7 @@ public class CreateBond extends FlowLogic<Void> {
         //Stage1 - generate transaction
         progressTracker.setCurrentStep(GENERATING_EXP_TRANSACTION);
 
-        UKTFBond outputState = new UKTFBond(externalBondID, bondValue, getOurIdentity(), bank, ukef);
+        UKTFBond outputState = new UKTFBond(externalBondID, new Bond(bondValue), getOurIdentity(), bank, ukef);
         List<PublicKey> requiredSigners = ImmutableList.of(getOurIdentity().getOwningKey(), bank.getOwningKey(), ukef.getOwningKey());
         final Command<UKTFContract.Commands.Create> cmd = new Command<>(new UKTFContract.Commands.Create(), requiredSigners);
         final TransactionBuilder txBuilder = new TransactionBuilder(notary)

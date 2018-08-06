@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-public class UKTFBond implements LinearState {
+public class UKTFBond implements ContractState {
 
 //    private UniqueIdentifier bondID;
     private final String bondID;
@@ -58,7 +58,6 @@ public class UKTFBond implements LinearState {
         return bank;
     }
 
-
     @Override
     public List<AbstractParty> getParticipants() {
         return ImmutableList.of(exporter, bank, ukef);
@@ -69,9 +68,4 @@ public class UKTFBond implements LinearState {
         return this.bondID;
     }
 
-    @NotNull
-    @Override
-    public UniqueIdentifier getLinearId() {
-        return null;
-    }
 }
