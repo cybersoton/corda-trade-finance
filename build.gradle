@@ -136,12 +136,12 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     }
     node {
         name "O=UKEF,L=London,C=GB"
-        p2pPort 10008
+        p2pPort 10011
         rpcSettings {
             address("localhost:10012")
             adminAddress("localhost:10052")
         }
-        webPort 10010
+        webPort 10013
         cordapps = [
                 "$project.group:cordapp-contracts-states:$project.version",
                 "$project.group:cordapp:$project.version",

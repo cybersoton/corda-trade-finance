@@ -15,7 +15,7 @@ public class UKTFState implements ContractState {
     private final int bondValue;
     private final Party exporter;
     private final Party bank;
-//    private final Party ukef;
+    private final Party ukef;
 
     //  details on the contract
     private UKTFBond bondDetails;
@@ -29,13 +29,13 @@ public class UKTFState implements ContractState {
 
 
     public UKTFState(UniqueIdentifier bondID, int bondValue, Party exporter, Party bank
-//            , Party ukef
+            , Party ukef
     ) {
         this.bondID = bondID;
         this.bondValue = bondValue;
         this.exporter = exporter;
         this.bank = bank;
-//        this.ukef = ukef;
+        this.ukef = ukef;
     }
 
     public int getBondValue() {
@@ -53,8 +53,7 @@ public class UKTFState implements ContractState {
     @Override
     public List<AbstractParty> getParticipants() {
 
-        return ImmutableList.of(exporter, bank
-//                , ukef
+        return ImmutableList.of(exporter, bank, ukef
         );
     }
 

@@ -24,7 +24,7 @@ public class UKTFFlow extends FlowLogic<Void> {
     private final Integer bondValue;
     /* the node running the flow is the exporter (this one is the bank, that need to sign the transaction) */
     private final Party bank;
-//    private final Party ukef;
+    private final Party ukef;
 
     private final Step GENERATING_EXP_TRANSACTION = new Step("Generating transaction based on new Bond Request.");
 //    private final Step GENERATING_BANK_TRANSACTION = new Step("Generating transaction based on Bank activity.");
@@ -53,12 +53,11 @@ public class UKTFFlow extends FlowLogic<Void> {
             FINALISING_TRANSACTION
     );
 
-    public UKTFFlow(Integer bondValue, Party bank
-//            , Party ukef
+    public UKTFFlow(Integer bondValue, Party bank, Party ukef
     ) {
         this.bondValue = bondValue;
         this.bank = bank;
-//        this.ukef = ukef;
+        this.ukef = ukef;
     }
 
     @Override
@@ -76,10 +75,9 @@ public class UKTFFlow extends FlowLogic<Void> {
         //Stage1 - generate transaction
         progressTracker.setCurrentStep(GENERATING_EXP_TRANSACTION);
 
-        UKTFState outputState = new UKTFState(new UniqueIdentifier(), bondValue, getOurIdentity(), bank);
-        List<PublicKey> requiredSigners = ImmutableList.of(getOurIdentity().getOwningKey(), bank.getOwningKey());
-        final Command<UKTFContract.Commands.Create> cmd = new Command<>(new UKTFContract.Commands.Create(), requiredSigners); // create the command generating the transaction
-
+        UKTFState outputState = new UKTFState(new UniqueIdentifier(), bondValue, getOurIdentity(), bank, ukef);
+        List<PublicKey> requiredSigners = ImmutableList.of(getOurIdentity().getOwningKey(), bank.getOwningKey(), ukef.getOwningKey());
+        final Command<UKTFContract.Commands.Create> cmd = new Command<>(new UKTFContract.Commands.Create(), requiredSigners);
         final TransactionBuilder txBuilder = new TransactionBuilder(notary)
                 .addOutputState(outputState, UKTFContract.UKTF_CONTRACT_ID)
                 .addCommand(cmd);
@@ -97,10 +95,11 @@ public class UKTFFlow extends FlowLogic<Void> {
         //Step 4 - gathering trx signs
         progressTracker.setCurrentStep(GATHERING_SIGS);
 
-        //bank
+        //bank & ukef signatures
         FlowSession bankSession = initiateFlow(bank);
+        FlowSession ukefSession = initiateFlow(ukef);
         SignedTransaction fullySignedTx = subFlow(new CollectSignaturesFlow(
-                partSignedTx , ImmutableList.of(bankSession), CollectSignaturesFlow.tracker()));
+                partSignedTx , ImmutableList.of(bankSession,ukefSession), CollectSignaturesFlow.tracker()));
 
 
         //Step 5 - finalising
@@ -149,5 +148,44 @@ public class UKTFFlow extends FlowLogic<Void> {
             return null;
         }
     }
+
+
+//    @InitiatedBy(UKTFBankFlow.class)
+//    public static class UKTFUKEFFlow extends FlowLogic<Void> {
+//
+//        private FlowSession exporter;
+//
+//        public UKTFUKEFFlow (FlowSession exporter) {
+//            this.exporter = exporter;
+//        }
+//
+//        @Suspendable
+//        @Override
+//        public Void call() throws FlowException {
+//
+//            class SignExpTxFlow extends SignTransactionFlow {
+//
+//                private SignExpTxFlow(FlowSession exporter, ProgressTracker progressTracker) {
+//                    super(exporter, progressTracker);
+//                }
+//
+//                @Override
+//                protected void checkTransaction(SignedTransaction stx) {
+//                    requireThat(require -> {
+//                        ContractState output = stx.getTx().getOutputs().get(0).getData();
+//                        require.using("This transacation must involve a bank.", stx.getTx().getRequiredSigningKeys().size() == 2);
+////                        UKTFState bond = (UKTFState) output;
+////                        require.using("The UKTF bond's value can't be null.", bond.getBondValue() > 0);
+//                        return null;
+//                    });
+//                }
+//            }
+//
+//
+//            subFlow(new SignExpTxFlow(exporter, SignTransactionFlow.Companion.tracker()));
+//
+//            return null;
+//        }
+//    }
 
 }

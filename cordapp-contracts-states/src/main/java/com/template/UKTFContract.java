@@ -65,7 +65,8 @@ public class UKTFContract implements Contract {
         }
 
         Command<CommandData> command = tx.getCommand(0);
-        if (command.equals(new Commands.Create())) {
+
+        if (command.getValue() instanceof Commands.Create) {
 
             requireThat(check -> {
 
@@ -81,21 +82,21 @@ public class UKTFContract implements Contract {
                 check.using("The parties involved cannot be the same entity.", exporter != bank);
 
                 final List<PublicKey> signers = command.getSigners();
-                check.using("There must be two signers.", signers.size() == 2);
+                check.using("There must be two signers.", signers.size() == 3);
                 check.using("All parties involved must be signers.", signers.containsAll(
                         ImmutableList.of(exporter.getOwningKey(), bank.getOwningKey())));
 
                 return null;
             });
 
-        } else if (command.equals(new Commands.BankAssess())){
+        } else if (command.getValue() instanceof Commands.BankAssess){
 
             requireThat(check -> {
 
                 return null;
             });
 
-        } else if (command.equals(new Commands.UKEFAssess())){
+        } else if (command.getValue() instanceof Commands.UKEFAssess){
 
             requireThat(check -> {
 
