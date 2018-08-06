@@ -29,8 +29,6 @@ public class CreateBond extends FlowLogic<Void> {
     private final Party ukef;
 
     private final Step GENERATING_EXP_TRANSACTION = new Step("Generating transaction based on new Bond Request.");
-//    private final Step GENERATING_BANK_TRANSACTION = new Step("Generating transaction based on Bank activity.");
-//    private final Step GENERATING_UKEF_TRANSACTION = new Step("Generating transaction based on UKEF activity.");
     private final Step VERIFYING_TRANSACTION = new Step("Verifying contract constraints.");
     private final Step SIGNING_TRANSACTION = new Step("Signing transaction with our private key.");
     private final Step GATHERING_SIGS = new Step("Gathering the counterparty's signature.") {
@@ -55,8 +53,7 @@ public class CreateBond extends FlowLogic<Void> {
             FINALISING_TRANSACTION
     );
 
-    public CreateBond(String bondId, Integer bondValue, Party bank, Party ukef
-    ) {
+    public CreateBond(String bondId, Integer bondValue, Party bank, Party ukef) {
         this.externalBondID = bondId;
         this.bondValue = bondValue;
         this.bank = bank;

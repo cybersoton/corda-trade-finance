@@ -99,12 +99,12 @@ public class BankAssess extends FlowLogic<Void> {
             throw new FlowException("Assessment of exporter bond can only be done by the bank reported in the bond");
         }
 
-        UKTFBond outputBond = inputBond.copy();
-        outputBond.setBankSupplyContractID(this.bankSupplyId);
-        outputBond.setBankCreditScore(this.bankCreditScore);
-        outputBond.setBankRiskLevel(this.bankRiskLevel);
-        outputBond.setExporterNet(this.exporterNet);
-        outputBond.setExporterTurnover(this.exporterNet);
+        //UKTFBond outputBond = inputBond.copy(new Bond());
+//        outputBond.setBankSupplyContractID(this.bankSupplyId);
+//        outputBond.setBankCreditScore(this.bankCreditScore);
+//        outputBond.setBankRiskLevel(this.bankRiskLevel);
+//        outputBond.setExporterNet(this.exporterNet);
+//        outputBond.setExporterTurnover(this.exporterNet);
 
         // Stage 2 - verifying trx
         progressTracker.setCurrentStep(GENERATING_BANK_TRANSACTION);
@@ -113,7 +113,7 @@ public class BankAssess extends FlowLogic<Void> {
         final Command<UKTFContract.Commands.BankAssess> cmd = new Command<>(new UKTFContract.Commands.BankAssess(), requiredSigners);
         final TransactionBuilder txBuilder = new TransactionBuilder(notary)
                 .addInputState(inputState)
-                .addOutputState(outputBond, UKTFContract.UKTF_CONTRACT_ID)
+              //  .addOutputState(outputBond, UKTFContract.UKTF_CONTRACT_ID)
                 .addCommand(cmd);
 
         txBuilder.verify(getServiceHub());

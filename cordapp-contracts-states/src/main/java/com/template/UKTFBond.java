@@ -7,100 +7,39 @@ import net.corda.core.contracts.UniqueIdentifier;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
 import net.corda.core.serialization.ConstructorForDeserialization;
+import net.corda.core.serialization.CordaSerializable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.UUID;
 
 
-public class UKTFBond implements ContractState {
+public class UKTFBond implements LinearState {
 
 //    private UniqueIdentifier bondID;
     private final String bondID;
-    private final int bondValue;
+    private final Bond bond;
     private final Party exporter;
     private final Party bank;
     private final Party ukef;
 
-    //bank
-    private String bankSupplyContractID;
-    private double exporterTurnover;
-    private double exporterNet;
-    private int bankRiskLevel;
-    private double bankCreditScore;
-
-    //ukef
-    private String UKEFSupplyContractID;
-    private Boolean isUKEFSupported;
-
-
-    @ConstructorForDeserialization
-    public UKTFBond(String bondID, int bondValue, Party exporter, Party bank, Party ukef, String bankSupplyContractID, double exporterTurnover, double exporterNet, int bankRiskLevel, double bankCreditScore, String UKEFContract, boolean isUKEFSupported) {
-        this.bondID = bondID;
-        this.bondValue = bondValue;
-        this.exporter = exporter;
-        this.bank = bank;
-        this.ukef = ukef;
-        this.bankSupplyContractID = bankSupplyContractID;
-        this.exporterTurnover = exporterTurnover;
-        this.exporterNet = exporterNet;
-        this.bankRiskLevel = bankRiskLevel;
-        this.bankCreditScore = bankCreditScore;
-        this.UKEFSupplyContractID = UKEFContract;
-        this.isUKEFSupported = isUKEFSupported;
-    }
-
-    public UKTFBond(String bondID, int bondValue, Party exporter, Party bank, Party ukef) {
+    public UKTFBond(String bondID, Bond bond, Party exporter, Party bank, Party ukef) {
 //        this.bondID = new UniqueIdentifier(bondID, UUID.randomUUID());
         this.bondID = bondID;
-        this.bondValue = bondValue;
+        this.bond = bond;
         this.exporter = exporter;
         this.bank = bank;
         this.ukef = ukef;
     }
 
-    public UKTFBond copy(){
+    public UKTFBond copy(Bond newBond){
         return new UKTFBond(
                 this.bondID,
-                this.bondValue,
+                newBond,
                 this.exporter,
                 this.bank,
-                this.ukef,
-                this.bankSupplyContractID,
-                this.exporterTurnover,
-                this.exporterNet,
-                this.bankRiskLevel,
-                this.bankCreditScore,
-                this.UKEFSupplyContractID,
-                this.isUKEFSupported);
-    }
-
-    public void setBankSupplyContractID(String bankSupplyContractID) {
-        this.bankSupplyContractID = bankSupplyContractID;
-    }
-
-    public void setExporterTurnover(double exporterTurnover) {
-        this.exporterTurnover = exporterTurnover;
-    }
-
-    public void setExporterNet(double exporterNet) {
-        this.exporterNet = exporterNet;
-    }
-
-    public void setBankRiskLevel(int bankRiskLevel) {
-        this.bankRiskLevel = bankRiskLevel;
-    }
-
-    public void setBankCreditScore(double bankCreditScore) {
-        this.bankCreditScore = bankCreditScore;
-    }
-
-    public void setUKEFSupplyContractID(String UKEFSupplyContractID) {
-        this.UKEFSupplyContractID = UKEFSupplyContractID;
-    }
-
-    public void setUKEFSupported(Boolean UKEFSupported) {
-        isUKEFSupported = UKEFSupported;
+                this.ukef
+        );
     }
 
     public String getBondID() {
@@ -108,7 +47,7 @@ public class UKTFBond implements ContractState {
     }
 
     public int getBondValue() {
-        return bondValue;
+        return this.bond.getBondValue();
     }
 
     public Party getExporter() {
@@ -122,9 +61,7 @@ public class UKTFBond implements ContractState {
 
     @Override
     public List<AbstractParty> getParticipants() {
-
-        return ImmutableList.of(exporter, bank, ukef
-        );
+        return ImmutableList.of(exporter, bank, ukef);
     }
 
     @Override
@@ -132,4 +69,9 @@ public class UKTFBond implements ContractState {
         return this.bondID;
     }
 
+    @NotNull
+    @Override
+    public UniqueIdentifier getLinearId() {
+        return null;
+    }
 }

@@ -85,7 +85,7 @@ task integrationTest(type: Test, dependsOn: []) {
 }
 
 tasks.withType(JavaCompile) {
-    options.compilerArgs << "-parameters" // Required for passing named arguments to your flow via the shell.
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation" << "-Xlint:-options" << "-parameters" // Required for passing named arguments to your flow via the shell.
 }
 
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
