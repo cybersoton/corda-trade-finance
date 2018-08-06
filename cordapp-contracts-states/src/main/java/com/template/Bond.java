@@ -32,6 +32,19 @@ public class Bond {
         this.isUKEFSupported = isUKEFSupported;
     }
 
+    public Bond(int bondValue, String bankSupplyContractID, double exporterTurnover, double exporterNet, int bankRiskLevel, double bankCreditScore) {
+        this.bondValue = bondValue;
+        this.bankSupplyContractID = bankSupplyContractID;
+        this.exporterTurnover = exporterTurnover;
+        this.exporterNet = exporterNet;
+        this.bankRiskLevel = bankRiskLevel;
+        this.bankCreditScore = bankCreditScore;
+        this.UKEFSupplyContractID = "";
+        this.isUKEFSupported = false;
+    }
+
+
+
     public Bond(int bondValue){
         this.bondValue = bondValue;
         this.bankSupplyContractID = "";

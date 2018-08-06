@@ -99,12 +99,8 @@ public class BankAssess extends FlowLogic<Void> {
             throw new FlowException("Assessment of exporter bond can only be done by the bank reported in the bond");
         }
 
-        //UKTFBond outputBond = inputBond.copy(new Bond());
-//        outputBond.setBankSupplyContractID(this.bankSupplyId);
-//        outputBond.setBankCreditScore(this.bankCreditScore);
-//        outputBond.setBankRiskLevel(this.bankRiskLevel);
-//        outputBond.setExporterNet(this.exporterNet);
-//        outputBond.setExporterTurnover(this.exporterNet);
+        Bond updBond = new Bond(inputBond.getBondValue(), this.bankSupplyId, this.exporterTurnover,this.exporterNet,this.bankRiskLevel, this.bankCreditScore);
+        UKTFBond outputBond = inputBond.copy(updBond);
 
         // Stage 2 - verifying trx
         progressTracker.setCurrentStep(GENERATING_BANK_TRANSACTION);
@@ -113,7 +109,7 @@ public class BankAssess extends FlowLogic<Void> {
         final Command<UKTFContract.Commands.BankAssess> cmd = new Command<>(new UKTFContract.Commands.BankAssess(), requiredSigners);
         final TransactionBuilder txBuilder = new TransactionBuilder(notary)
                 .addInputState(inputState)
-              //  .addOutputState(outputBond, UKTFContract.UKTF_CONTRACT_ID)
+                .addOutputState(outputBond, UKTFContract.UKTF_CONTRACT_ID)
                 .addCommand(cmd);
 
         txBuilder.verify(getServiceHub());
@@ -183,45 +179,6 @@ public class BankAssess extends FlowLogic<Void> {
 //                        require.using("This must be an UKTF transaction.", output instanceof UKTFState);
 //                        UKTFState bond = (UKTFState) output;
 //                        require.using("The UKTF bond's value can't be null.", bond.getBondValue() > 0);
-//                        return null;
-//                    });
-//                }
-//            }
-//
-//
-//            subFlow(new SignExpTxFlow(exporter, SignTransactionFlow.Companion.tracker()));
-//
-//            return null;
-//        }
-//    }
-
-//
-//    @InitiatedBy(UKTFBankFlow.class)
-//    public static class UKTFUKEFFlow extends FlowLogic<Void> {
-//
-//        private FlowSession exporter;
-//
-//        public UKTFUKEFFlow (FlowSession exporter) {
-//            this.exporter = exporter;
-//        }
-//
-//        @Suspendable
-//        @Override
-//        public Void call() throws FlowException {
-//
-//            class SignExpTxFlow extends SignTransactionFlow {
-//
-//                private SignExpTxFlow(FlowSession exporter, ProgressTracker progressTracker) {
-//                    super(exporter, progressTracker);
-//                }
-//
-//                @Override
-//                protected void checkTransaction(SignedTransaction stx) {
-//                    requireThat(require -> {
-//                        ContractState output = stx.getTx().getOutputs().get(0).getData();
-//                        require.using("This transacation must involve a bank.", stx.getTx().getRequiredSigningKeys().size() == 2);
-////                        UKTFState bond = (UKTFState) output;
-////                        require.using("The UKTF bond's value can't be null.", bond.getBondValue() > 0);
 //                        return null;
 //                    });
 //                }

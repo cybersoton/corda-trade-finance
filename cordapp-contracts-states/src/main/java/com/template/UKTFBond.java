@@ -2,17 +2,11 @@ package com.template;
 
 import com.google.common.collect.ImmutableList;
 import net.corda.core.contracts.ContractState;
-import net.corda.core.contracts.LinearState;
-import net.corda.core.contracts.UniqueIdentifier;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
-import net.corda.core.serialization.ConstructorForDeserialization;
-import net.corda.core.serialization.CordaSerializable;
-import org.jetbrains.annotations.NotNull;
+
 
 import java.util.List;
-import java.util.UUID;
-
 
 public class UKTFBond implements ContractState {
 
@@ -33,13 +27,7 @@ public class UKTFBond implements ContractState {
     }
 
     public UKTFBond copy(Bond newBond){
-        return new UKTFBond(
-                this.bondID,
-                newBond,
-                this.exporter,
-                this.bank,
-                this.ukef
-        );
+        return new UKTFBond(this.bondID, newBond, this.exporter, this.bank, this.ukef);
     }
 
     public String getBondID() {

@@ -149,43 +149,4 @@ public class CreateBond extends FlowLogic<Void> {
         }
     }
 
-//
-//    @InitiatedBy(UKTFBankFlow.class)
-//    public static class UKTFUKEFFlow extends FlowLogic<Void> {
-//
-//        private FlowSession exporter;
-//
-//        public UKTFUKEFFlow (FlowSession exporter) {
-//            this.exporter = exporter;
-//        }
-//
-//        @Suspendable
-//        @Override
-//        public Void call() throws FlowException {
-//
-//            class SignExpTxFlow extends SignTransactionFlow {
-//
-//                private SignExpTxFlow(FlowSession exporter, ProgressTracker progressTracker) {
-//                    super(exporter, progressTracker);
-//                }
-//
-//                @Override
-//                protected void checkTransaction(SignedTransaction stx) {
-//                    requireThat(require -> {
-//                        ContractState output = stx.getTx().getOutputs().get(0).getData();
-//                        require.using("This transacation must involve a bank.", stx.getTx().getRequiredSigningKeys().size() == 2);
-////                        UKTFState bond = (UKTFState) output;
-////                        require.using("The UKTF bond's value can't be null.", bond.getBondValue() > 0);
-//                        return null;
-//                    });
-//                }
-//            }
-//
-//
-//            subFlow(new SignExpTxFlow(exporter, SignTransactionFlow.Companion.tracker()));
-//
-//            return null;
-//        }
-//    }
-
 }
