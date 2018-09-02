@@ -16,56 +16,59 @@ import net.corda.core.utilities.ProgressTracker.Step;
 import java.security.PublicKey;
 import java.util.List;
 
+public class BankAssess {
 
-@InitiatingFlow
-@StartableByRPC
-public class BankAssess extends FlowLogic<Void> {
-    private final String bondID;
-    /* the node running the flow is the exporter (this one is the bank, that need to sign the transaction) */
-    private final Party exporter;
-    private final Party ukef;
-    private final String bankSupplyId;
-    private double exporterTurnover;
-    private double exporterNet;
-    private int bankRiskLevel;
-    private double bankCreditScore;
+    @InitiatingFlow
+    @StartableByRPC
+    public static class Initiator extends FlowLogic<Void>{
 
-    private final Step PREPARATION = new Step("Retrieve state to amend.");
-    //    private final Step GENERATING_UKEF_TRANSACTION = new Step("Generating transaction based on UKEF activity.");
-    private final Step GENERATING_BANK_TRANSACTION = new Step("Creating bank transaction.");
-    private final Step SIGNING_TRANSACTION = new Step("Signing transaction with our private key.");
-    private final Step GATHERING_SIGS = new Step("Gathering the counterparty's signature.") {
-        @Override
-        public ProgressTracker childProgressTracker() {
-            return CollectSignaturesFlow.Companion.tracker();
-        }
-    };
-    private final Step FINALISING_TRANSACTION = new Step("Obtaining notary signature and recording transaction.") {
-        @Override
-        public ProgressTracker childProgressTracker() {
-            return FinalityFlow.Companion.tracker();
-        }
-    };
+        private final String bondID;
+        /* the node running the flow is the exporter (this one is the bank, that need to sign the transaction) */
+        private final Party exporter;
+        private final Party ukef;
+        private final String bankSupplyId;
+        private double exporterTurnover;
+        private double exporterNet;
+        private int bankRiskLevel;
+        private double bankCreditScore;
+
+        private final Step PREPARATION = new Step("Retrieve state to amend.");
+        //    private final Step GENERATING_UKEF_TRANSACTION = new Step("Generating transaction based on UKEF activity.");
+        private final Step GENERATING_BANK_TRANSACTION = new Step("Creating bank transaction.");
+        private final Step SIGNING_TRANSACTION = new Step("Signing transaction with our private key.");
+        private final Step GATHERING_SIGS = new Step("Gathering the counterparty's signature.") {
+            @Override
+            public ProgressTracker childProgressTracker() {
+                return CollectSignaturesFlow.Companion.tracker();
+            }
+        };
+        private final Step FINALISING_TRANSACTION = new Step("Obtaining notary signature and recording transaction.") {
+            @Override
+            public ProgressTracker childProgressTracker() {
+                return FinalityFlow.Companion.tracker();
+            }
+        };
 
 
-    private final ProgressTracker progressTracker = new ProgressTracker(
-            GENERATING_BANK_TRANSACTION,
-            PREPARATION,
-            SIGNING_TRANSACTION,
-            GATHERING_SIGS,
-            FINALISING_TRANSACTION
-    );
+        private final ProgressTracker progressTracker = new ProgressTracker(
+                GENERATING_BANK_TRANSACTION,
+                PREPARATION,
+                SIGNING_TRANSACTION,
+                GATHERING_SIGS,
+                FINALISING_TRANSACTION
+        );
 
-    /**
-     * @param bankSupplyContractID UUID created internally from the bank
-     * @param turnover             exporter turnover
-     * @param net                  exporter net income
-     * @param riskLevel            [0 - lowest, 5 - highest]
-     * @param creditScore          [0.0 lowest - 4.0 highest]
-     * @param exporter             party
-     * @param ukef                 party
-     */
-    public BankAssess(String bondID, String bankSupplyContractID, Double turnover, Double net, int riskLevel, Double creditScore, Party exporter, Party ukef) {
+        /**
+         * @param bankSupplyContractID UUID created internally from the bank
+         * @param turnover             exporter turnover
+         * @param net                  exporter net income
+         * @param riskLevel            [0 - lowest, 5 - highest]
+         * @param creditScore          [0.0 lowest - 4.0 highest]
+         * @param exporter             party
+         * @param ukef                 party
+         */
+    public Initiator(String bondID, String bankSupplyContractID, Double turnover, Double net, int riskLevel, Double
+        creditScore, Party exporter, Party ukef){
         this.bondID = bondID;
         this.exporter = exporter;
         this.ukef = ukef;
@@ -76,14 +79,14 @@ public class BankAssess extends FlowLogic<Void> {
         this.bankCreditScore = creditScore;
     }
 
-    @Override
-    public ProgressTracker getProgressTracker() {
+        @Override
+        public ProgressTracker getProgressTracker () {
         return progressTracker;
     }
 
-    @Suspendable
-    @Override
-    public Void call() throws FlowException {
+        @Suspendable
+        @Override
+        public Void call () throws FlowException {
 
         //Notary for the transaction
         final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
@@ -99,7 +102,7 @@ public class BankAssess extends FlowLogic<Void> {
             throw new FlowException("Assessment of exporter bond can only be done by the bank reported in the bond");
         }
 
-        Bond updBond = new Bond(inputBond.getBondValue(), this.bankSupplyId, this.exporterTurnover,this.exporterNet,this.bankRiskLevel, this.bankCreditScore);
+        Bond updBond = new Bond(inputBond.getBondValue(), this.bankSupplyId, this.exporterTurnover, this.exporterNet, this.bankRiskLevel, this.bankCreditScore);
         UKTFBond outputBond = inputBond.copy(updBond);
 
         // Stage 2 - verifying trx
@@ -138,10 +141,12 @@ public class BankAssess extends FlowLogic<Void> {
     }
 
 
-    StateAndRef<UKTFBond> getUKTFBond(String bondID) throws FlowException {
+        StateAndRef<UKTFBond> getUKTFBond (String bondID) throws FlowException {
 
-        QueryCriteria.VaultQueryCriteria criteria = new QueryCriteria.VaultQueryCriteria(Vault.StateStatus.UNCONSUMED);
+        QueryCriteria.VaultQueryCriteria criteria = new QueryCriteria.VaultQueryCriteria();
         List<StateAndRef<UKTFBond>> bonds = getServiceHub().getVaultService().queryBy(UKTFBond.class, criteria).getStates();
+
+        System.out.println(bonds.toArray().toString());
 
         while (bonds.iterator().hasNext()) {
             StateAndRef<UKTFBond> state = bonds.iterator().next();
@@ -152,6 +157,7 @@ public class BankAssess extends FlowLogic<Void> {
         throw new FlowException(String.format("Bond with id %s not found", bondID));
     }
 
+    }
 
 //    @InitiatedBy(BankAssess.class)
 //    public static class UKTFBankFlow extends FlowLogic<Void> {

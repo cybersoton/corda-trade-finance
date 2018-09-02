@@ -18,100 +18,103 @@ import java.util.List;
 import static net.corda.core.contracts.ContractsDSL.requireThat;
 
 
-@InitiatingFlow
-@StartableByRPC
-public class CreateBond extends FlowLogic<Void> {
+public class CreateBond {
 
-    private final String externalBondID;
-    private final Integer bondValue;
-    /* the node running the flow is the exporter (this one is the bank, that need to sign the transaction) */
-    private final Party bank;
-    private final Party ukef;
+    @InitiatingFlow
+    @StartableByRPC
+    public static class Initiator extends FlowLogic<Void> {
 
-    private final Step GENERATING_EXP_TRANSACTION = new Step("Generating transaction based on new Bond Request.");
-    private final Step VERIFYING_TRANSACTION = new Step("Verifying contract constraints.");
-    private final Step SIGNING_TRANSACTION = new Step("Signing transaction with our private key.");
-    private final Step GATHERING_SIGS = new Step("Gathering the counterparty's signature.") {
-        @Override
-        public ProgressTracker childProgressTracker() {
-            return CollectSignaturesFlow.Companion.tracker();
+        private final String externalBondID;
+        private final Integer bondValue;
+        /* the node running the flow is the exporter (this one is the bank, that need to sign the transaction) */
+        private final Party bank;
+        private final Party ukef;
+
+        private final Step GENERATING_EXP_TRANSACTION = new Step("Generating transaction based on new Bond Request.");
+        private final Step VERIFYING_TRANSACTION = new Step("Verifying contract constraints.");
+        private final Step SIGNING_TRANSACTION = new Step("Signing transaction with our private key.");
+        private final Step GATHERING_SIGS = new Step("Gathering the counterparty's signature.") {
+            @Override
+            public ProgressTracker childProgressTracker() {
+                return CollectSignaturesFlow.Companion.tracker();
+            }
+        };
+        private final Step FINALISING_TRANSACTION = new Step("Obtaining notary signature and recording transaction.") {
+            @Override
+            public ProgressTracker childProgressTracker() {
+                return FinalityFlow.Companion.tracker();
+            }
+        };
+
+
+        private final ProgressTracker progressTracker = new ProgressTracker(
+                GENERATING_EXP_TRANSACTION,
+                VERIFYING_TRANSACTION,
+                SIGNING_TRANSACTION,
+                GATHERING_SIGS,
+                FINALISING_TRANSACTION
+        );
+
+        public Initiator(String bondId, Integer bondValue, Party bank, Party ukef) {
+            this.externalBondID = bondId;
+            this.bondValue = bondValue;
+            this.bank = bank;
+            this.ukef = ukef;
         }
-    };
-    private final Step FINALISING_TRANSACTION = new Step("Obtaining notary signature and recording transaction.") {
+
         @Override
-        public ProgressTracker childProgressTracker() {
-            return FinalityFlow.Companion.tracker();
+        public ProgressTracker getProgressTracker() {
+            return progressTracker;
         }
-    };
+
+        @Suspendable
+        @Override
+        public Void call() throws FlowException {
+
+            //Notary for the transaction
+            final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
+
+            //Stage1 - generate transaction
+            progressTracker.setCurrentStep(GENERATING_EXP_TRANSACTION);
+
+            UKTFBond outputState = new UKTFBond(externalBondID, new Bond(bondValue), getOurIdentity(), bank, ukef);
+            List<PublicKey> requiredSigners = ImmutableList.of(getOurIdentity().getOwningKey(), bank.getOwningKey(), ukef.getOwningKey());
+            final Command<UKTFContract.Commands.Create> cmd = new Command<>(new UKTFContract.Commands.Create(), requiredSigners);
+            final TransactionBuilder txBuilder = new TransactionBuilder(notary)
+                    .addOutputState(outputState, UKTFContract.UKTF_CONTRACT_ID)
+                    .addCommand(cmd);
 
 
-    private final ProgressTracker progressTracker = new ProgressTracker(
-            GENERATING_EXP_TRANSACTION,
-            VERIFYING_TRANSACTION,
-            SIGNING_TRANSACTION,
-            GATHERING_SIGS,
-            FINALISING_TRANSACTION
-    );
+            // Stage 2 - verifying trx
+            progressTracker.setCurrentStep(VERIFYING_TRANSACTION);
+            txBuilder.verify(getServiceHub());
 
-    public CreateBond(String bondId, Integer bondValue, Party bank, Party ukef) {
-        this.externalBondID = bondId;
-        this.bondValue = bondValue;
-        this.bank = bank;
-        this.ukef = ukef;
+            // Stage 3 - signing trx
+            progressTracker.setCurrentStep(SIGNING_TRANSACTION);
+            final SignedTransaction partSignedTx = getServiceHub().signInitialTransaction(txBuilder);
+
+
+            //Step 4 - gathering trx signs
+            progressTracker.setCurrentStep(GATHERING_SIGS);
+
+            //bank & ukef signatures
+            FlowSession bankSession = initiateFlow(bank);
+            FlowSession ukefSession = initiateFlow(ukef);
+            SignedTransaction fullySignedTx = subFlow(new CollectSignaturesFlow(
+                    partSignedTx, ImmutableList.of(bankSession, ukefSession), CollectSignaturesFlow.tracker()));
+
+
+            //Step 5 - finalising
+            progressTracker.setCurrentStep(FINALISING_TRANSACTION);
+
+            subFlow(new FinalityFlow(fullySignedTx));
+
+            return null;
+        }
+
     }
 
-    @Override
-    public ProgressTracker getProgressTracker() {
-        return progressTracker;
-    }
-
-    @Suspendable
-    @Override
-    public Void call() throws FlowException {
-
-        //Notary for the transaction
-        final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
-
-        //Stage1 - generate transaction
-        progressTracker.setCurrentStep(GENERATING_EXP_TRANSACTION);
-
-        UKTFBond outputState = new UKTFBond(externalBondID, new Bond(bondValue), getOurIdentity(), bank, ukef);
-        List<PublicKey> requiredSigners = ImmutableList.of(getOurIdentity().getOwningKey(), bank.getOwningKey(), ukef.getOwningKey());
-        final Command<UKTFContract.Commands.Create> cmd = new Command<>(new UKTFContract.Commands.Create(), requiredSigners);
-        final TransactionBuilder txBuilder = new TransactionBuilder(notary)
-                .addOutputState(outputState, UKTFContract.UKTF_CONTRACT_ID)
-                .addCommand(cmd);
-
-
-        // Stage 2 - verifying trx
-        progressTracker.setCurrentStep(VERIFYING_TRANSACTION);
-        txBuilder.verify(getServiceHub());
-
-        // Stage 3 - signing trx
-        progressTracker.setCurrentStep(SIGNING_TRANSACTION);
-        final SignedTransaction partSignedTx = getServiceHub().signInitialTransaction(txBuilder);
-
-
-        //Step 4 - gathering trx signs
-        progressTracker.setCurrentStep(GATHERING_SIGS);
-
-        //bank & ukef signatures
-        FlowSession bankSession = initiateFlow(bank);
-        FlowSession ukefSession = initiateFlow(ukef);
-        SignedTransaction fullySignedTx = subFlow(new CollectSignaturesFlow(
-                partSignedTx , ImmutableList.of(bankSession,ukefSession), CollectSignaturesFlow.tracker()));
-
-
-        //Step 5 - finalising
-        progressTracker.setCurrentStep(FINALISING_TRANSACTION);
-
-        subFlow(new FinalityFlow(fullySignedTx));
-
-        return null;
-    }
-
-
-    @InitiatedBy(CreateBond.class)
+    @InitiatedBy(Initiator.class)
     public static class UKTFBankFlow extends FlowLogic<Void> {
 
         private FlowSession exporter;
