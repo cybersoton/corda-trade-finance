@@ -14,6 +14,7 @@ import net.corda.core.utilities.ProgressTracker;
 import net.corda.core.utilities.ProgressTracker.Step;
 
 import java.security.PublicKey;
+import java.util.Iterator;
 import java.util.List;
 
 public class BankAssess {
@@ -141,15 +142,19 @@ public class BankAssess {
     }
 
 
-        StateAndRef<UKTFBond> getUKTFBond (String bondID) throws FlowException {
+     StateAndRef<UKTFBond> getUKTFBond (String bondID) throws FlowException {
 
-        QueryCriteria.VaultQueryCriteria criteria = new QueryCriteria.VaultQueryCriteria();
-        List<StateAndRef<UKTFBond>> bonds = getServiceHub().getVaultService().queryBy(UKTFBond.class, criteria).getStates();
+        //List<StateAndRef<UKTFBond>> bonds = getServiceHub().getVaultService().queryBy(UKTFBond.class, criteria).getStates();
+        QueryCriteria.VaultQueryCriteria criteria = new QueryCriteria.VaultQueryCriteria(Vault.StateStatus.UNCONSUMED);
+        Vault.Page<UKTFBond> results = getServiceHub().getVaultService().queryBy(UKTFBond.class, criteria);
+        List<StateAndRef<UKTFBond>> bonds = results.getStates();
 
-        System.out.println(bonds.toArray().toString());
+        System.out.println("Overall " + bonds.toArray().toString() + "numbers " +  bonds.toArray().length);
 
-        while (bonds.iterator().hasNext()) {
-            StateAndRef<UKTFBond> state = bonds.iterator().next();
+        Iterator<StateAndRef<UKTFBond>> i = bonds.iterator();
+        while (i.hasNext()) {
+            StateAndRef<UKTFBond> state = i.next();
+            System.out.println("single bond " + state.getState().getData().toString());
             if (state.getState().getData().getBondID() == bondID)
                 return state;
         }
