@@ -12,7 +12,6 @@ import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 import net.corda.core.utilities.ProgressTracker;
 import net.corda.core.utilities.ProgressTracker.Step;
-//import org.apache.log4j.Logger;
 
 import java.security.PublicKey;
 import java.util.Iterator;
@@ -20,24 +19,25 @@ import java.util.List;
 
 import static net.corda.core.contracts.ContractsDSL.requireThat;
 
-public class BankAssess {
+//import org.apache.log4j.Logger;
+
+public class UKEFAssess {
 
     @InitiatingFlow
     @StartableByRPC
     public static class Initiator extends FlowLogic<Void>{
+
         private final String bondID;
-        /* the node running the flow is the bank (these sign the transaction)*/
+        /* the node running the flow is the UKEF (these sign the transaction) */
         private final Party exporter;
-        private final Party ukef;
-        private final String bankSupplyId;
-        private double exporterTurnover;
-        private double exporterNet;
-        private int bankRiskLevel;
-        private double bankCreditScore;
+        private final Party bank;
+        private String UKEFSupplyId;
+        private boolean isUKEFSupported;
+
 
         private final Step PREPARATION = new Step("Retrieve state to amend.");
         //    private final Step GENERATING_UKEF_TRANSACTION = new Step("Generating transaction based on UKEF activity.");
-        private final Step GENERATING_BANK_TRANSACTION = new Step("Creating bank transaction.");
+        private final Step GENERATING_BANK_TRANSACTION = new Step("Creating UKEF transaction.");
         private final Step SIGNING_TRANSACTION = new Step("Signing transaction with our private key.");
         private final Step GATHERING_SIGS = new Step("Gathering the counterparty's signature.") {
             @Override
@@ -61,25 +61,13 @@ public class BankAssess {
                 FINALISING_TRANSACTION
         );
 
-        /**
-         * @param bankSupplyContractID UUID created internally from the bank
-         * @param turnover             exporter turnover
-         * @param net                  exporter net income
-         * @param riskLevel            [0 - lowest, 5 - highest]
-         * @param creditScore          [0.0 lowest - 4.0 highest]
-         * @param exporter             party
-         * @param ukef                 party
-         */
-        public Initiator(String bondID, String bankSupplyContractID, Double turnover, Double net, int riskLevel, Double
-            creditScore, Party exporter, Party ukef){
+
+        public Initiator(String bondID, String UKEFSupplyContractID, boolean isUKEFSupported, Party exporter, Party bank){
             this.bondID = bondID;
             this.exporter = exporter;
-            this.ukef = ukef;
-            this.bankSupplyId = bankSupplyContractID;
-            this.exporterTurnover = turnover;
-            this.exporterNet = net;
-            this.bankRiskLevel = riskLevel;
-            this.bankCreditScore = creditScore;
+            this.bank = bank;
+            this.UKEFSupplyId = UKEFSupplyContractID;
+            this.isUKEFSupported = isUKEFSupported;
         }
 
         @Override
@@ -102,22 +90,23 @@ public class BankAssess {
             StateAndRef<UKTFBond> inputState = getUKTFBond(this.bondID);
             UKTFBond inputBond = inputState.getState().getData();
 
-            if (!inputBond.getBank().equals(getOurIdentity())) {
-                throw new FlowException("Assessment of exporter bond can only be done by the bank reported in the bond");
+            if (!inputBond.getUkef().equals(getOurIdentity())) {
+                throw new FlowException("Supporting a bank assessed bond can only be done by the UKEF reported in the bond");
             }
 
-            Bond updBond = new Bond(inputBond.getBondValue(), this.bankSupplyId, this.exporterTurnover, this.exporterNet, this.bankRiskLevel, this.bankCreditScore);
+            Bond updBond = new Bond(inputBond.getBond(), this.UKEFSupplyId, this.isUKEFSupported);
             UKTFBond outputBond = inputBond.copy(updBond);
 
             // Stage 2 - verifying trx
             progressTracker.setCurrentStep(GENERATING_BANK_TRANSACTION);
 
-            List<PublicKey> requiredSigners = ImmutableList.of(getOurIdentity().getOwningKey(), exporter.getOwningKey(), ukef.getOwningKey());
-            final Command<UKTFContract.Commands.BankAssess> cmd = new Command<>(new UKTFContract.Commands.BankAssess(), requiredSigners);
+            List<PublicKey> requiredSigners = ImmutableList.of(getOurIdentity().getOwningKey(), exporter.getOwningKey(), bank.getOwningKey());
+            final Command<UKTFContract.Commands.UKEFAssess> cmd = new Command<>(new UKTFContract.Commands.UKEFAssess(), requiredSigners);
             final TransactionBuilder txBuilder = new TransactionBuilder(notary)
                     .addInputState(inputState)
                     .addOutputState(outputBond, UKTFContract.UKTF_CONTRACT_ID)
-                    .addCommand(cmd);
+                    .addCommand(cmd)
+                    ;
 
             txBuilder.verify(getServiceHub());
 
@@ -131,9 +120,9 @@ public class BankAssess {
 
             //bank & ukef signatures
             FlowSession exporterSession = initiateFlow(exporter);
-            FlowSession ukefSession = initiateFlow(ukef);
+            FlowSession bankSession = initiateFlow(bank);
             SignedTransaction fullySignedTx = subFlow(new CollectSignaturesFlow(
-                    partSignedTx, ImmutableList.of(exporterSession, ukefSession), CollectSignaturesFlow.tracker()));
+                    partSignedTx, ImmutableList.of(exporterSession, bankSession), CollectSignaturesFlow.tracker()));
 
 
             //Step 5 - finalising
@@ -170,12 +159,12 @@ public class BankAssess {
     }
 
     @InitiatedBy(Initiator.class)
-    public static class BankAssessResponder extends FlowLogic<Void> {
+    public static class UKEFAssessResponder extends FlowLogic<Void> {
 
-        private FlowSession bank;
+        private FlowSession ukef;
 
-        public BankAssessResponder (FlowSession bank) {
-            this.bank = bank;
+        public UKEFAssessResponder(FlowSession ukef) {
+            this.ukef = ukef;
         }
 
         @Suspendable
@@ -199,7 +188,7 @@ public class BankAssess {
             }
 
 
-            subFlow(new SignExpTxFlow(bank, SignTransactionFlow.Companion.tracker()));
+            subFlow(new SignExpTxFlow(ukef, SignTransactionFlow.Companion.tracker()));
 
             return null;
         }

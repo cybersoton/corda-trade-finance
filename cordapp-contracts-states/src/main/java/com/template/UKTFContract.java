@@ -83,7 +83,7 @@ public class UKTFContract implements Contract {
                 check.using("The parties involved cannot be the same entity.", exporter != bank);
 
                 final List<PublicKey> signers = command.getSigners();
-                check.using("There must be two signers.", signers.size() == 3);
+                check.using("There must be three signers.", signers.size() == 3);
                 check.using("All parties involved must be signers.", signers.containsAll(
                         ImmutableList.of(exporter.getOwningKey(), bank.getOwningKey())));
 
@@ -94,12 +94,42 @@ public class UKTFContract implements Contract {
 
             requireThat(check -> {
 
+                // Constraints on the states.
+                check.using("Inputs should be consumed when doing a bank assess application", !tx.getInputs().isEmpty());
+                check.using("There should be one output state of type UKTFState.", tx.getOutputs().size() == 1);
+                final UKTFBond out = tx.outputsOfType(UKTFBond.class).get(0);
+
+                //signers
+                final Party exporter = out.getExporter();
+                final Party ukef = out.getUkef();
+                check.using("The parties involved cannot be the same entity.", exporter != ukef);
+
+                final List<PublicKey> signers = command.getSigners();
+                check.using("There must be three signers.", signers.size() == 3);
+                check.using("All parties involved must be signers.", signers.containsAll(
+                        ImmutableList.of(exporter.getOwningKey(), ukef.getOwningKey())));
+
                 return null;
             });
 
         } else if (command.getValue() instanceof Commands.UKEFAssess){
 
             requireThat(check -> {
+
+                // Constraints on the states.
+                check.using("Inputs should be consumed when doing a UKEF assess application", !tx.getInputs().isEmpty());
+                check.using("There should be one output state of type UKTFState.", tx.getOutputs().size() == 1);
+                final UKTFBond out = tx.outputsOfType(UKTFBond.class).get(0);
+
+                //signers
+                final Party exporter = out.getExporter();
+                final Party bank = out.getBank();
+                check.using("The parties involved cannot be the same entity.", exporter != bank);
+
+                final List<PublicKey> signers = command.getSigners();
+                check.using("There must be three signers.", signers.size() == 3);
+                check.using("All parties involved must be signers.", signers.containsAll(
+                        ImmutableList.of(exporter.getOwningKey(), bank.getOwningKey())));
 
                 return null;
             });

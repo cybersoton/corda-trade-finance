@@ -43,6 +43,16 @@ public class Bond {
         this.isUKEFSupported = false;
     }
 
+    public Bond(Bond inputBond, String UKEFSupplyContractID, boolean isUKEFSupported) {
+        this.bondValue = inputBond.getBondValue();
+        this.bankSupplyContractID = inputBond.getBankSupplyContractID();
+        this.exporterTurnover = inputBond.getExporterTurnover();
+        this.exporterNet = inputBond.getExporterNet();
+        this.bankRiskLevel = inputBond.getBankRiskLevel();
+        this.bankCreditScore = inputBond.getBankCreditScore();
+        this.UKEFSupplyContractID = UKEFSupplyContractID;
+        this.isUKEFSupported = isUKEFSupported;
+    }
 
 
     public Bond(int bondValue){
@@ -60,31 +70,32 @@ public class Bond {
         return bondValue;
     }
 
-    public void setBankSupplyContractID(String bankSupplyContractID) {
-        this.bankSupplyContractID = bankSupplyContractID;
+
+    public double getBankCreditScore (){
+        return this.bankCreditScore;
     }
 
-    public void setExporterTurnover(double exporterTurnover) {
-        this.exporterTurnover = exporterTurnover;
+    public int getBankRiskLevel() {
+        return bankRiskLevel;
     }
 
-    public void setExporterNet(double exporterNet) {
-        this.exporterNet = exporterNet;
+    public String getBankSupplyContractID() {
+        return bankSupplyContractID;
     }
 
-    public void setBankRiskLevel(int bankRiskLevel) {
-        this.bankRiskLevel = bankRiskLevel;
+    public double getExporterTurnover() {
+        return exporterTurnover;
     }
 
-    public void setBankCreditScore(double bankCreditScore) {
-        this.bankCreditScore = bankCreditScore;
+    public double getExporterNet() {
+        return exporterNet;
     }
 
-    public void setUKEFSupplyContractID(String UKEFSupplyContractID) {
-        this.UKEFSupplyContractID = UKEFSupplyContractID;
+    public String getUKEFSupplyContractID() {
+        return UKEFSupplyContractID;
     }
 
-    public void setUKEFSupported(Boolean UKEFSupported) {
-        isUKEFSupported = UKEFSupported;
+    public Boolean getUKEFSupported() {
+        return isUKEFSupported;
     }
 }

@@ -26,7 +26,7 @@ public class CreateBond {
 
         private final String externalBondID;
         private final Integer bondValue;
-        /* the node running the flow is the exporter (this one is the bank, that need to sign the transaction) */
+        /* the node running the flow is the exporter (these sign the transaction)*/
         private final Party bank;
         private final Party ukef;
 
@@ -115,11 +115,11 @@ public class CreateBond {
     }
 
     @InitiatedBy(Initiator.class)
-    public static class UKTFBankFlow extends FlowLogic<Void> {
+    public static class CreateBondResponder extends FlowLogic<Void> {
 
         private FlowSession exporter;
 
-        public UKTFBankFlow(FlowSession exporter) {
+        public CreateBondResponder(FlowSession exporter) {
             this.exporter = exporter;
         }
 
@@ -139,7 +139,8 @@ public class CreateBond {
                         ContractState output = stx.getTx().getOutputs().get(0).getData();
                         require.using("This must be an UKTF transaction.", output instanceof UKTFBond);
                         UKTFBond bond = (UKTFBond) output;
-                        require.using("The UKTF bond's value can't be null.", bond.getBondValue() > 0);
+                        require.using("The credit score should be between 0 and 4.", bond.getCreditScore() >= 0 && bond.getCreditScore() <= 4);
+                        require.using("The rating level should be one among {0,1,2,3,4,5}.", bond.getRiskLevel() >= 0 && bond.getRiskLevel() <= 5);
                         return null;
                     });
                 }

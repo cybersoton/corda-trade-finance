@@ -38,12 +38,22 @@ public class UKTFBond implements ContractState {
         return this.bond.getBondValue();
     }
 
+    public double getCreditScore() {return this.bond.getBankCreditScore();}
+
+    public int getRiskLevel() {return this.bond.getBankRiskLevel();}
+
     public Party getExporter() {
         return exporter;
     }
 
     public Party getBank() {
         return bank;
+    }
+
+    public Party getUkef() { return ukef; }
+
+    public Bond getBond() {
+        return bond;
     }
 
     @Override
