@@ -42,6 +42,8 @@ public class UKTFBond implements ContractState {
 
     public int getRiskLevel() {return this.bond.getBankRiskLevel();}
 
+    public double getTurnover(){return this.bond.getExporterTurnover();}
+
     public Party getExporter() {
         return exporter;
     }

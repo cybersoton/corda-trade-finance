@@ -3,6 +3,7 @@ package com.template;
 import co.paralleluniverse.fibers.Suspendable;
 import com.google.common.collect.ImmutableList;
 import net.corda.core.contracts.Command;
+import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.flows.*;
 import net.corda.core.identity.Party;
@@ -192,7 +193,13 @@ public class BankAssess {
                 protected void checkTransaction(SignedTransaction stx) {
                     requireThat(require -> {
                         int sizeInputs = stx.getTx().getInputs().size();
-                        require.using("There should be an input input",  sizeInputs == 1);
+                        require.using("There should be one single input",  sizeInputs == 1);
+                        ContractState output = stx.getTx().getOutputs().get(0).getData();
+                        require.using("This must be an UKTF transaction.", output instanceof UKTFBond);
+                        UKTFBond bond = (UKTFBond) output;
+                        require.using("The credit score should be between 0 and 4.", bond.getCreditScore() >= 0 && bond.getCreditScore() <= 4);
+                        require.using("The rating level should be one among {0,1,2,3,4,5}.", bond.getRiskLevel() >= 0 && bond.getRiskLevel() <= 5);
+                        require.using("The turnover should be greater than zero", bond.getTurnover() >0):
                         return null;
                     });
                 }
