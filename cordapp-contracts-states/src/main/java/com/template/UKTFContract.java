@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import net.corda.core.contracts.Command;
 import net.corda.core.contracts.CommandData;
 import net.corda.core.contracts.Contract;
-import net.corda.core.contracts.UniqueIdentifier;
 import net.corda.core.identity.Party;
 import net.corda.core.transactions.LedgerTransaction;
 
@@ -74,7 +73,7 @@ public class UKTFContract implements Contract {
                 // Constraints on the states.
                 check.using("No inputs should be consumed when issuing bond application", tx.getInputs().isEmpty());
                 check.using("There should be one output state of type UKTFState.", tx.getOutputs().size() == 1);
-                final UKTFBond out = tx.outputsOfType(UKTFBond.class).get(0);
+                final UKTFBondState out = tx.outputsOfType(UKTFBondState.class).get(0);
                 check.using("The bond's value must be non-negative.", out.getBondValue() > 0);
 
                 //signers
@@ -97,7 +96,7 @@ public class UKTFContract implements Contract {
                 // Constraints on the states.
                 check.using("Inputs should be consumed when doing a bank assess application", !tx.getInputs().isEmpty());
                 check.using("There should be one output state of type UKTFState.", tx.getOutputs().size() == 1);
-                final UKTFBond out = tx.outputsOfType(UKTFBond.class).get(0);
+                final UKTFBondState out = tx.outputsOfType(UKTFBondState.class).get(0);
 
                 //signers
                 final Party exporter = out.getExporter();
@@ -119,7 +118,7 @@ public class UKTFContract implements Contract {
                 // Constraints on the states.
                 check.using("Inputs should be consumed when doing a UKEF assess application", !tx.getInputs().isEmpty());
                 check.using("There should be one output state of type UKTFState.", tx.getOutputs().size() == 1);
-                final UKTFBond out = tx.outputsOfType(UKTFBond.class).get(0);
+                final UKTFBondState out = tx.outputsOfType(UKTFBondState.class).get(0);
 
                 //signers
                 final Party exporter = out.getExporter();

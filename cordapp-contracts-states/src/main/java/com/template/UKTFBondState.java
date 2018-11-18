@@ -1,23 +1,22 @@
 package com.template;
 
-import com.google.common.collect.ImmutableList;
 import net.corda.core.contracts.ContractState;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
 
-
+import java.util.Arrays;
 import java.util.List;
 
-public class UKTFBond implements ContractState {
+public class UKTFBondState implements ContractState {
 
-//    private UniqueIdentifier bondID;
+    //    private UniqueIdentifier bondID;
     private final String bondID;
     private final Bond bond;
     private final Party exporter;
     private final Party bank;
     private final Party ukef;
 
-    public UKTFBond(String bondID, Bond bond, Party exporter, Party bank, Party ukef) {
+    public UKTFBondState(String bondID, Bond bond, Party exporter, Party bank, Party ukef) {
 //        this.bondID = new UniqueIdentifier(bondID, UUID.randomUUID());
         this.bondID = bondID;
         this.bond = bond;
@@ -26,8 +25,8 @@ public class UKTFBond implements ContractState {
         this.ukef = ukef;
     }
 
-    public UKTFBond copy(Bond newBond){
-        return new UKTFBond(this.bondID, newBond, this.exporter, this.bank, this.ukef);
+    public UKTFBondState copy(Bond newBond) {
+        return new UKTFBondState(this.bondID, newBond, this.exporter, this.bank, this.ukef);
     }
 
     public String getBondID() {
@@ -38,21 +37,33 @@ public class UKTFBond implements ContractState {
         return this.bond.getBondValue();
     }
 
-    public double getCreditScore() {return this.bond.getBankCreditScore();}
+    public double getCreditScore() {
+        return this.bond.getBankCreditScore();
+    }
 
-    public int getRiskLevel() {return this.bond.getBankRiskLevel();}
+    public int getRiskLevel() {
+        return this.bond.getBankRiskLevel();
+    }
 
-    public double getTurnover(){return this.bond.getExporterTurnover();}
+    public double getTurnover() {
+        return this.bond.getExporterTurnover();
+    }
 
-    public boolean getUKEFSupported(){return this.bond.getUKEFSupported();}
+    public boolean getUKEFSupported() {
+        return this.bond.getUKEFSupported();
+    }
 
     public Party getExporter() {
         return exporter;
     }
 
-    public Party getBank() { return bank; }
+    public Party getBank() {
+        return bank;
+    }
 
-    public Party getUkef() { return ukef; }
+    public Party getUkef() {
+        return ukef;
+    }
 
     public Bond getBond() {
         return bond;
@@ -61,7 +72,7 @@ public class UKTFBond implements ContractState {
 
     @Override
     public List<AbstractParty> getParticipants() {
-        return ImmutableList.of(exporter, bank, ukef);
+        return Arrays.asList(exporter, bank, ukef);
     }
 
     @Override

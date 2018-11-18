@@ -102,15 +102,15 @@ public class BankAssess {
             progressTracker.setCurrentStep(PREPARATION);
 
             //gather previous state to amend
-            StateAndRef<UKTFBond> inputState = getUKTFBond(this.bondID);
-            UKTFBond inputBond = inputState.getState().getData();
+            StateAndRef<UKTFBondState> inputState = getUKTFBond(this.bondID);
+            UKTFBondState inputBond = inputState.getState().getData();
 
             if (!inputBond.getBank().equals(getOurIdentity())) {
                 throw new FlowException("Assessment of exporter bond can only be done by the bank reported in the bond");
             }
 
             Bond updBond = new Bond(inputBond.getBondValue(), this.bankSupplyId, this.exporterTurnover, this.exporterNet, this.bankRiskLevel, this.bankCreditScore);
-            UKTFBond outputBond = inputBond.copy(updBond);
+            UKTFBondState outputBond = inputBond.copy(updBond);
 
             // Stage 2 - verifying trx
             progressTracker.setCurrentStep(GENERATING_BANK_TRANSACTION);
@@ -148,20 +148,20 @@ public class BankAssess {
         }
 
 
-         StateAndRef<UKTFBond> getUKTFBond (String bondID) throws FlowException {
+         StateAndRef<UKTFBondState> getUKTFBond (String bondID) throws FlowException {
           //  Logger logger = Logger.getLogger("BankAssess");
-            //List<StateAndRef<UKTFBond>> bonds = getServiceHub().getVaultService().queryBy(UKTFBond.class, criteria).getStates();
+            //List<StateAndRef<UKTFBondState>> bonds = getServiceHub().getVaultService().queryBy(UKTFBondState.class, criteria).getStates();
             QueryCriteria.VaultQueryCriteria criteria = new QueryCriteria.VaultQueryCriteria(Vault.StateStatus.UNCONSUMED);
-            Vault.Page<UKTFBond> results = getServiceHub().getVaultService().queryBy(UKTFBond.class, criteria);
-            List<StateAndRef<UKTFBond>> bonds = results.getStates();
+            Vault.Page<UKTFBondState> results = getServiceHub().getVaultService().queryBy(UKTFBondState.class, criteria);
+            List<StateAndRef<UKTFBondState>> bonds = results.getStates();
 
           // logger.info("Number of UNCONSUMED bonds " +  bonds.toArray().length);
 
           //  logger.info("Bond id to find " + bondID);
 
-            Iterator<StateAndRef<UKTFBond>> i = bonds.iterator();
+            Iterator<StateAndRef<UKTFBondState>> i = bonds.iterator();
             while (i.hasNext()) {
-                StateAndRef<UKTFBond> state = i.next();
+                StateAndRef<UKTFBondState> state = i.next();
                 if (state.getState().getData().getBondID().equals(bondID)) {
           //          logger.info("found state");
                     return state;
@@ -197,8 +197,8 @@ public class BankAssess {
                         int sizeInputs = stx.getTx().getInputs().size();
                         require.using("There should be one single input",  sizeInputs == 1);
                         ContractState output = stx.getTx().getOutputs().get(0).getData();
-                        require.using("This must be an UKTF transaction.", output instanceof UKTFBond);
-                        UKTFBond bond = (UKTFBond) output;
+                        require.using("This must be an UKTF transaction.", output instanceof UKTFBondState);
+                        UKTFBondState bond = (UKTFBondState) output;
                         require.using("The credit score should be between 0 and 4.", bond.getCreditScore() >= 0 && bond.getCreditScore() <= 4);
                         require.using("The rating level should be one among {0,1,2,3,4,5}.", bond.getRiskLevel() >= 0 && bond.getRiskLevel() <= 5);
                         require.using("The turnover should be greater than zero", bond.getTurnover() >0);
