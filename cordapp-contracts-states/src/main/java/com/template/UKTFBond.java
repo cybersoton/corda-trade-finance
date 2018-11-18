@@ -44,19 +44,20 @@ public class UKTFBond implements ContractState {
 
     public double getTurnover(){return this.bond.getExporterTurnover();}
 
+    public boolean getUKEFSupported(){return this.bond.getUKEFSupported();}
+
     public Party getExporter() {
         return exporter;
     }
 
-    public Party getBank() {
-        return bank;
-    }
+    public Party getBank() { return bank; }
 
     public Party getUkef() { return ukef; }
 
     public Bond getBond() {
         return bond;
     }
+
 
     @Override
     public List<AbstractParty> getParticipants() {

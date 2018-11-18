@@ -63,13 +63,15 @@ public class BankAssess {
         );
 
         /**
-         * @param bankSupplyContractID UUID created internally from the bank
+         *
+         * @param bondID               Id of the bond id to be processed
+         * @param bankSupplyContractID UUID created internally by the bank
          * @param turnover             exporter turnover
          * @param net                  exporter net income
          * @param riskLevel            [0 - lowest, 5 - highest]
          * @param creditScore          [0.0 lowest - 4.0 highest]
-         * @param exporter             party
-         * @param ukef                 party
+         * @param exporter             contractual party
+         * @param ukef                 contractual party
          */
         public Initiator(String bondID, String bankSupplyContractID, Double turnover, Double net, int riskLevel, Double
             creditScore, Party exporter, Party ukef){
@@ -199,7 +201,7 @@ public class BankAssess {
                         UKTFBond bond = (UKTFBond) output;
                         require.using("The credit score should be between 0 and 4.", bond.getCreditScore() >= 0 && bond.getCreditScore() <= 4);
                         require.using("The rating level should be one among {0,1,2,3,4,5}.", bond.getRiskLevel() >= 0 && bond.getRiskLevel() <= 5);
-                        require.using("The turnover should be greater than zero", bond.getTurnover() >0):
+                        require.using("The turnover should be greater than zero", bond.getTurnover() >0);
                         return null;
                     });
                 }

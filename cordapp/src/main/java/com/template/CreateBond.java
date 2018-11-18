@@ -55,6 +55,13 @@ public class CreateBond {
                 FINALISING_TRANSACTION
         );
 
+        /**
+         *
+         * @param bondId    Id of the bond id to be processed
+         * @param bondValue Value of the bond submitted by the exporter
+         * @param bank      contractual party
+         * @param ukef      contractual party
+         */
         public Initiator(String bondId, Integer bondValue, Party bank, Party ukef) {
             this.externalBondID = bondId;
             this.bondValue = bondValue;
@@ -139,8 +146,7 @@ public class CreateBond {
                         ContractState output = stx.getTx().getOutputs().get(0).getData();
                         require.using("This must be an UKTF transaction.", output instanceof UKTFBond);
                         UKTFBond bond = (UKTFBond) output;
-                        require.using("The credit score should be between 0 and 4.", bond.getCreditScore() >= 0 && bond.getCreditScore() <= 4);
-                        require.using("The rating level should be one among {0,1,2,3,4,5}.", bond.getRiskLevel() >= 0 && bond.getRiskLevel() <= 5);
+                        require.using("The UKTF bond's value can't be null.", bond.getBondValue() > 0);
                         return null;
                     });
                 }

@@ -91,10 +91,6 @@ public class Bond {
         return exporterNet;
     }
 
-    public String getUKEFSupplyContractID() {
-        return UKEFSupplyContractID;
-    }
-
     public Boolean getUKEFSupported() {
         return isUKEFSupported;
     }

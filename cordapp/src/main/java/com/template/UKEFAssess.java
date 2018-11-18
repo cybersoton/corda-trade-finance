@@ -3,6 +3,7 @@ package com.template;
 import co.paralleluniverse.fibers.Suspendable;
 import com.google.common.collect.ImmutableList;
 import net.corda.core.contracts.Command;
+import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.flows.*;
 import net.corda.core.identity.Party;
@@ -62,6 +63,14 @@ public class UKEFAssess {
         );
 
 
+        /**
+         *
+         * @param bondID                Id of the bond id to be processed
+         * @param UKEFSupplyContractID  UUID created internally by the UKEF
+         * @param isUKEFSupported       UKEF decision on the bond
+         * @param exporter              contractual party
+         * @param bank                  contractual party
+         */
         public Initiator(String bondID, String UKEFSupplyContractID, boolean isUKEFSupported, Party exporter, Party bank){
             this.bondID = bondID;
             this.exporter = exporter;
@@ -181,7 +190,11 @@ public class UKEFAssess {
                 protected void checkTransaction(SignedTransaction stx) {
                     requireThat(require -> {
                         int sizeInputs = stx.getTx().getInputs().size();
-                        require.using("There should be an input input",  sizeInputs == 1);
+                        require.using("There should be a Bond input",sizeInputs == 1);
+                        ContractState output = stx.getTx().getOutputs().get(0).getData();
+                        require.using("This must be an UKTF transaction.", output instanceof UKTFBond);
+                        UKTFBond bond = (UKTFBond) output;
+                        require.using("The UKEF approval must be a boolean value.", !bond.getUKEFSupported() || bond.getUKEFSupported());
                         return null;
                     });
                 }
