@@ -2,9 +2,125 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Example front-end.</title>
+    <title>UK Trade Finance front-end.</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="style.css">
+
+    <script src="app.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
 </head>
-<body>
-    <div>Define your front-end here.</div>
+<body class="text-center">
+
+<div class="container">
+    <div class="row mt-3">
+        <div class="container">
+            <div class="row align-items-center" style="">
+                <div class="col-sm-4" >
+                    <img class="mr-3" alt="UKEF" src="img/dit.png"  height="150" class="d-inline-block align-top" alt="">
+                </div>
+                <div class="col-lg-4">
+                        <h2 class="mt-0"> UK Trade Finance </h2>
+                 </div>
+                <div class="col-sm-4">
+                    <img class="ml-3" alt="soton" src="img/soton.png" height="150" class="d-inline-block align-top" alt="">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="container">
+
+                <button type="button" class="btn btn-outline-primary">
+                    <div class="thisNode"></div>
+                </button>
+
+                <button type="button" class="btn btn-outline-secondary">
+                    <div class="otherNode1"></div>
+                </button>
+
+                <button type="button" class="btn btn-outline-secondary">
+                    <div class="otherNode2"></div>
+                </button>
+
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="container">
+            <h1 class="cover-heading">Exporter Bond Applications</h1>
+
+            <div class="action"></div>
+
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="container">
+            <div class="panel">
+                <div class="panel-primary mt-3">
+                    <h4 class="panel-title">
+                        Bond Applications
+                    </h4>
+                </div>
+                <ul class="panel panel-default mt-3">
+                    <ul class="list-group" id="bond">
+
+                        <li class="list-group-item" id="bond1">
+                            <p><span>Bond1</span> </p>
+                            <p>
+                                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#bond1Exporter" aria-expanded="false" aria-controls="bond1Exporter">
+                                    Exporter data
+                                </button>
+                                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#bond1Bank" aria-expanded="false" aria-controls="bond1Bank">
+                                    Bank data
+                                </button>
+                                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#bond1UKEF" aria-expanded="false" aria-controls="bond1UKEF">
+                                    UKEF data
+                                </button>
+                            </p>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="bond1Exporter">
+                                        <div class="card card-body">
+                                            Exporter data
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="bond1Bank">
+                                        <div class="card card-body">
+                                            Bank data
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="bond1UKEF">
+                                        <div class="card card-body">
+                                           UKEF data
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="container">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <p class="card-text">Blockchain Application for the UK Department of International Trade by <a href="https://cyber.ecs.soton.ac.uk/">Cyber Security Southampton</a>, developed by <a href="https://twitter.com/andreamargheri">@AndreaMargheri</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
