@@ -1,10 +1,8 @@
 package com.template;
 
 import co.paralleluniverse.fibers.Suspendable;
-import com.google.common.collect.ImmutableList;
 import net.corda.core.contracts.Command;
 import net.corda.core.contracts.ContractState;
-import net.corda.core.contracts.UniqueIdentifier;
 import net.corda.core.flows.*;
 import net.corda.core.identity.Party;
 import net.corda.core.transactions.SignedTransaction;
@@ -13,6 +11,7 @@ import net.corda.core.utilities.ProgressTracker;
 import net.corda.core.utilities.ProgressTracker.Step;
 
 import java.security.PublicKey;
+import java.util.Arrays;
 import java.util.List;
 
 import static net.corda.core.contracts.ContractsDSL.requireThat;
@@ -84,8 +83,8 @@ public class CreateBond {
             //Stage1 - generate transaction
             progressTracker.setCurrentStep(GENERATING_EXP_TRANSACTION);
 
-            UKTFBond outputState = new UKTFBond(externalBondID, new Bond(bondValue), getOurIdentity(), bank, ukef);
-            List<PublicKey> requiredSigners = ImmutableList.of(getOurIdentity().getOwningKey(), bank.getOwningKey(), ukef.getOwningKey());
+            UKTFBondState outputState = new UKTFBondState(externalBondID, new Bond(bondValue), getOurIdentity(), bank, ukef);
+            List<PublicKey> requiredSigners =  Arrays.asList(getOurIdentity().getOwningKey(), bank.getOwningKey(), ukef.getOwningKey());
             final Command<UKTFContract.Commands.Create> cmd = new Command<>(new UKTFContract.Commands.Create(), requiredSigners);
             final TransactionBuilder txBuilder = new TransactionBuilder(notary)
                     .addOutputState(outputState, UKTFContract.UKTF_CONTRACT_ID)
@@ -108,7 +107,7 @@ public class CreateBond {
             FlowSession bankSession = initiateFlow(bank);
             FlowSession ukefSession = initiateFlow(ukef);
             SignedTransaction fullySignedTx = subFlow(new CollectSignaturesFlow(
-                    partSignedTx, ImmutableList.of(bankSession, ukefSession), CollectSignaturesFlow.tracker()));
+                    partSignedTx,  Arrays.asList(bankSession, ukefSession), CollectSignaturesFlow.tracker()));
 
 
             //Step 5 - finalising
@@ -144,8 +143,8 @@ public class CreateBond {
                 protected void checkTransaction(SignedTransaction stx) {
                     requireThat(require -> {
                         ContractState output = stx.getTx().getOutputs().get(0).getData();
-                        require.using("This must be an UKTF transaction.", output instanceof UKTFBond);
-                        UKTFBond bond = (UKTFBond) output;
+                        require.using("This must be an UKTF transaction.", output instanceof UKTFBondState);
+                        UKTFBondState bond = (UKTFBondState) output;
                         require.using("The UKTF bond's value can't be null.", bond.getBondValue() > 0);
                         return null;
                     });

@@ -1,7 +1,6 @@
 package com.template;
 
 import co.paralleluniverse.fibers.Suspendable;
-import com.google.common.collect.ImmutableList;
 import net.corda.core.contracts.Command;
 import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.StateAndRef;
@@ -16,6 +15,7 @@ import net.corda.core.utilities.ProgressTracker.Step;
 //import org.apache.log4j.Logger;
 
 import java.security.PublicKey;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -115,7 +115,7 @@ public class BankAssess {
             // Stage 2 - verifying trx
             progressTracker.setCurrentStep(GENERATING_BANK_TRANSACTION);
 
-            List<PublicKey> requiredSigners = ImmutableList.of(getOurIdentity().getOwningKey(), exporter.getOwningKey(), ukef.getOwningKey());
+            List<PublicKey> requiredSigners =  Arrays.asList(getOurIdentity().getOwningKey(), exporter.getOwningKey(), ukef.getOwningKey());
             final Command<UKTFContract.Commands.BankAssess> cmd = new Command<>(new UKTFContract.Commands.BankAssess(), requiredSigners);
             final TransactionBuilder txBuilder = new TransactionBuilder(notary)
                     .addInputState(inputState)
@@ -136,7 +136,7 @@ public class BankAssess {
             FlowSession exporterSession = initiateFlow(exporter);
             FlowSession ukefSession = initiateFlow(ukef);
             SignedTransaction fullySignedTx = subFlow(new CollectSignaturesFlow(
-                    partSignedTx, ImmutableList.of(exporterSession, ukefSession), CollectSignaturesFlow.tracker()));
+                    partSignedTx,  Arrays.asList(exporterSession, ukefSession), CollectSignaturesFlow.tracker()));
 
 
             //Step 5 - finalising

@@ -1,6 +1,5 @@
 package com.template;
 
-import com.google.common.collect.ImmutableList;
 import net.corda.core.contracts.Command;
 import net.corda.core.contracts.CommandData;
 import net.corda.core.contracts.Contract;
@@ -8,6 +7,7 @@ import net.corda.core.identity.Party;
 import net.corda.core.transactions.LedgerTransaction;
 
 import java.security.PublicKey;
+import java.util.Arrays;
 import java.util.List;
 
 import static net.corda.core.contracts.ContractsDSL.requireThat;
@@ -84,7 +84,7 @@ public class UKTFContract implements Contract {
                 final List<PublicKey> signers = command.getSigners();
                 check.using("There must be three signers.", signers.size() == 3);
                 check.using("All parties involved must be signers.", signers.containsAll(
-                        ImmutableList.of(exporter.getOwningKey(), bank.getOwningKey())));
+                        Arrays.asList(exporter.getOwningKey(), bank.getOwningKey())));
 
                 return null;
             });
@@ -106,7 +106,7 @@ public class UKTFContract implements Contract {
                 final List<PublicKey> signers = command.getSigners();
                 check.using("There must be three signers.", signers.size() == 3);
                 check.using("All parties involved must be signers.", signers.containsAll(
-                        ImmutableList.of(exporter.getOwningKey(), ukef.getOwningKey())));
+                        Arrays.asList(exporter.getOwningKey(), ukef.getOwningKey())));
 
                 return null;
             });
@@ -128,7 +128,7 @@ public class UKTFContract implements Contract {
                 final List<PublicKey> signers = command.getSigners();
                 check.using("There must be three signers.", signers.size() == 3);
                 check.using("All parties involved must be signers.", signers.containsAll(
-                        ImmutableList.of(exporter.getOwningKey(), bank.getOwningKey())));
+                        Arrays.asList(exporter.getOwningKey(), bank.getOwningKey())));
 
                 return null;
             });

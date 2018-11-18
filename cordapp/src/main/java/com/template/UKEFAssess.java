@@ -1,7 +1,6 @@
 package com.template;
 
 import co.paralleluniverse.fibers.Suspendable;
-import com.google.common.collect.ImmutableList;
 import net.corda.core.contracts.Command;
 import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.StateAndRef;
@@ -15,6 +14,7 @@ import net.corda.core.utilities.ProgressTracker;
 import net.corda.core.utilities.ProgressTracker.Step;
 
 import java.security.PublicKey;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -96,20 +96,20 @@ public class UKEFAssess {
             progressTracker.setCurrentStep(PREPARATION);
 
             //gather previous state to amend
-            StateAndRef<UKTFBond> inputState = getUKTFBond(this.bondID);
-            UKTFBond inputBond = inputState.getState().getData();
+            StateAndRef<UKTFBondState> inputState = getUKTFBond(this.bondID);
+            UKTFBondState inputBond = inputState.getState().getData();
 
             if (!inputBond.getUkef().equals(getOurIdentity())) {
                 throw new FlowException("Supporting a bank assessed bond can only be done by the UKEF reported in the bond");
             }
 
             Bond updBond = new Bond(inputBond.getBond(), this.UKEFSupplyId, this.isUKEFSupported);
-            UKTFBond outputBond = inputBond.copy(updBond);
+            UKTFBondState outputBond = inputBond.copy(updBond);
 
             // Stage 2 - verifying trx
             progressTracker.setCurrentStep(GENERATING_BANK_TRANSACTION);
 
-            List<PublicKey> requiredSigners = ImmutableList.of(getOurIdentity().getOwningKey(), exporter.getOwningKey(), bank.getOwningKey());
+            List<PublicKey> requiredSigners =  Arrays.asList(getOurIdentity().getOwningKey(), exporter.getOwningKey(), bank.getOwningKey());
             final Command<UKTFContract.Commands.UKEFAssess> cmd = new Command<>(new UKTFContract.Commands.UKEFAssess(), requiredSigners);
             final TransactionBuilder txBuilder = new TransactionBuilder(notary)
                     .addInputState(inputState)
@@ -131,7 +131,7 @@ public class UKEFAssess {
             FlowSession exporterSession = initiateFlow(exporter);
             FlowSession bankSession = initiateFlow(bank);
             SignedTransaction fullySignedTx = subFlow(new CollectSignaturesFlow(
-                    partSignedTx, ImmutableList.of(exporterSession, bankSession), CollectSignaturesFlow.tracker()));
+                    partSignedTx,  Arrays.asList(exporterSession, bankSession), CollectSignaturesFlow.tracker()));
 
 
             //Step 5 - finalising
@@ -143,20 +143,20 @@ public class UKEFAssess {
         }
 
 
-         StateAndRef<UKTFBond> getUKTFBond (String bondID) throws FlowException {
+         StateAndRef<UKTFBondState> getUKTFBond (String bondID) throws FlowException {
           //  Logger logger = Logger.getLogger("BankAssess");
             //List<StateAndRef<UKTFBond>> bonds = getServiceHub().getVaultService().queryBy(UKTFBond.class, criteria).getStates();
             QueryCriteria.VaultQueryCriteria criteria = new QueryCriteria.VaultQueryCriteria(Vault.StateStatus.UNCONSUMED);
-            Vault.Page<UKTFBond> results = getServiceHub().getVaultService().queryBy(UKTFBond.class, criteria);
-            List<StateAndRef<UKTFBond>> bonds = results.getStates();
+            Vault.Page<UKTFBondState> results = getServiceHub().getVaultService().queryBy(UKTFBondState.class, criteria);
+            List<StateAndRef<UKTFBondState>> bonds = results.getStates();
 
           // logger.info("Number of UNCONSUMED bonds " +  bonds.toArray().length);
 
           //  logger.info("Bond id to find " + bondID);
 
-            Iterator<StateAndRef<UKTFBond>> i = bonds.iterator();
+            Iterator<StateAndRef<UKTFBondState>> i = bonds.iterator();
             while (i.hasNext()) {
-                StateAndRef<UKTFBond> state = i.next();
+                StateAndRef<UKTFBondState> state = i.next();
                 if (state.getState().getData().getBondID().equals(bondID)) {
           //          logger.info("found state");
                     return state;
@@ -192,8 +192,8 @@ public class UKEFAssess {
                         int sizeInputs = stx.getTx().getInputs().size();
                         require.using("There should be a Bond input",sizeInputs == 1);
                         ContractState output = stx.getTx().getOutputs().get(0).getData();
-                        require.using("This must be an UKTF transaction.", output instanceof UKTFBond);
-                        UKTFBond bond = (UKTFBond) output;
+                        require.using("This must be an UKTF transaction.", output instanceof UKTFBondState);
+                        UKTFBondState bond = (UKTFBondState) output;
                         require.using("The UKEF approval must be a boolean value.", !bond.getUKEFSupported() || bond.getUKEFSupported());
                         return null;
                     });
