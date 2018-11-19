@@ -14,7 +14,7 @@ $(document).ready(function() {
        $('.thisNode').append(data.me.organisation);
 
         if (me == "Exporter"){
-            $('.action').append("<button type=\"button\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\"#newApp\">Submit New Bond Application</button>")
+            $('.action').append("<button type=\"button\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\"#submitBond\">Submit New Bond Application</button>")
         }
 
         if (me == "Exporter"){
@@ -37,10 +37,10 @@ $(document).ready(function() {
                     str += "<button class=\"btn btn-primary\" type=\"button\" data-toggle=\"collapse\" data-target=\"#bond" + item.n + "Exporter\" aria-expanded=\"false\" aria-controls=\"bond" + item.n + "Exporter\">\n"
                     str += "Exporter data"
                     str += "</button>\n"
-                    str += "<button class=\"btn btn-primary\" type=\"button\" data-toggle=\"collapse\" data-target=\"#bond" + item.n + "Bank\" aria-expanded=\"false\" aria-controls=\"bond" + item.n + "Bank\">\n"
+                    str += "<button class=\"btn btn-success\" type=\"button\" data-toggle=\"collapse\" data-target=\"#bond" + item.n + "Bank\" aria-expanded=\"false\" aria-controls=\"bond" + item.n + "Bank\">\n"
                     str += "Bank data"
                     str += "</button>\n"
-                    str += "<button class=\"btn btn-primary\" type=\"button\" data-toggle=\"collapse\" data-target=\"#bond" + item.n + "UKEF\" aria-expanded=\"false\" aria-controls=\"bond" + item.n + "UKEF\">\n"
+                    str += "<button class=\"btn btn-info\" type=\"button\" data-toggle=\"collapse\" data-target=\"#bond" + item.n + "UKEF\" aria-expanded=\"false\" aria-controls=\"bond" + item.n + "UKEF\">\n"
                     str += "UKEF data"
                     str += "</button>\n"
                     str += "</p> \n "
@@ -90,5 +90,22 @@ $(document).ready(function() {
        $('.otherNode1').append(data.peers[0].organisation);
        $('.otherNode2').append(data.peers[1].organisation);
     });
+
+});
+
+$('#submitApp').on('click', function(e){
+    e.preventDefault();
+    $.ajax({
+          type: "POST",
+          data: {bondId: $('#bond-name').val() ,
+                 bondValue: $('#bond-value').val()},
+          url: apiBase + "createBond"
+    }).then(function(data) {
+       alert("Bond Registered! Transaction id: \"" + data.id + "\"");
+       console.log(data.it)
+       //$('#submitBond').modal('hide');
+    });
+
+
 
 });
