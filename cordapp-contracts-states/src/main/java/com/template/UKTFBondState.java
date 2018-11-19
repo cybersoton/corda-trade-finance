@@ -37,21 +37,29 @@ public class UKTFBondState implements ContractState {
         return this.bond.getBondValue();
     }
 
-    public double getCreditScore() {
-        return this.bond.getBankCreditScore();
-    }
+    public int getBondUKValue(){ return this.bond.getBondUKValue();}
 
-    public int getRiskLevel() {
-        return this.bond.getBankRiskLevel();
+    public Rating getCreditRating() {return this.bond.getBankCreditRating();}
+
+    public int getDefaultProbability() {
+        return this.bond.getBankDefaultProbability();
     }
 
     public double getTurnover() {
         return this.bond.getExporterTurnover();
     }
 
+    public double getNet() {return this.bond.getExporterNet();}
+
     public boolean getUKEFSupported() {
         return this.bond.getUKEFSupported();
     }
+
+    public int getRequestedUKEFsupport() {return this.bond.getRequestedUKEFsupport();}
+
+    public String getBankSupplyContract(){ return this.bond.getBankSupplyContractID();}
+
+    public String getUkefSupplyContract(){ return this.bond.getUKEFSupplyContractID();}
 
     public Party getExporter() {
         return exporter;

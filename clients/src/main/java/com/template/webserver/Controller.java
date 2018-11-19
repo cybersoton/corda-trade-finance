@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import com.template.CreateBond;
 import com.template.UKTFBondState;
 import net.corda.core.contracts.StateAndRef;
-import net.corda.core.flows.FlowException;
 import net.corda.core.identity.CordaX500Name;
 import net.corda.core.identity.Party;
 import net.corda.core.messaging.CordaRPCOps;
@@ -25,7 +24,6 @@ import java.util.Iterator;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 
@@ -86,7 +84,8 @@ public class Controller {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public JSONObject createBond(@RequestParam("bondId") String bondId,
-                               @RequestParam("bondValue") int bondValue) {
+                                 @RequestParam("bondValue") int bondValue,
+                                 @RequestParam("bondUKValue") int bondUKValue) {
 
         JSONObject json = new JSONObject();
 
@@ -98,7 +97,7 @@ public class Controller {
         try {
             FlowHandle<SignedTransaction> flow_bond = proxy.startFlowDynamic(
                     CreateBond.Initiator.class,
-                    bondId, bondValue, bank, ukef
+                    bondId, bondValue, bondUKValue, bank, ukef
             );
 
             SignedTransaction trx = flow_bond.getReturnValue().get();
@@ -115,6 +114,19 @@ public class Controller {
             return json;
         }
     }
+
+//
+//    /**
+//     * Register bank assess
+//     */
+//    @RequestMapping(value = "/createBond", method = RequestMethod.POST)
+//    @ResponseStatus(HttpStatus.OK)
+//    @ResponseBody
+//    public JSONObject createBond(@RequestParam("bondId") String bondId,
+//                                 @RequestParam("bondValue") int bondValue) {
+//
+//
+//    }
 
 
     /**
@@ -134,11 +146,23 @@ public class Controller {
             JSONObject item = new JSONObject();
             UKTFBondState bond = i.next().getState().getData();
             item.put("n", j);
+
+            //exporter
             item.put("id", bond.getBondID());
-            item.put("value", bond.getBondValue());
-            item.put("creditScore", bond.getCreditScore());
-            item.put("ukef", bond.getUKEFSupported());
+            item.put("bondValue", bond.getBondValue());
+            item.put("bondUKValue", bond.getBondUKValue());
+            //bank
+            item.put("bankId", bond.getBankSupplyContract());
+            item.put("turnover", bond.getTurnover());
+            item.put("net", bond.getNet());
+            item.put("defaultProb", bond.getDefaultProbability());
+            item.put("creditRate", bond.getCreditRating());
+            item.put("requestedSupport", bond.getRequestedUKEFsupport());
+            //ukef
+            item.put("ukefId", bond.getUkefSupplyContract());
+            item.put("ukefSupport", bond.getUKEFSupported());
             array.add(item);
+
             j++;
         }
 
@@ -161,5 +185,9 @@ public class Controller {
 
         return bonds;
     }
+
+
+
+
 
 }

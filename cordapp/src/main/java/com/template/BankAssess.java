@@ -32,8 +32,9 @@ public class BankAssess {
         private final String bankSupplyId;
         private double exporterTurnover;
         private double exporterNet;
-        private int bankRiskLevel;
-        private double bankCreditScore;
+        private int bankDefaultProbability;
+        private Rating bankCreditRisk;
+        private int requestedUKEFSupport;
 
         private final Step PREPARATION = new Step("Retrieve state to amend.");
         //    private final Step GENERATING_UKEF_TRANSACTION = new Step("Generating transaction based on UKEF activity.");
@@ -67,21 +68,23 @@ public class BankAssess {
          * @param bankSupplyContractID UUID created internally by the bank
          * @param turnover             exporter turnover
          * @param net                  exporter net income
-         * @param riskLevel            [0 - lowest, 5 - highest]
-         * @param creditScore          [0.0 lowest - 4.0 highest]
+         * @param defaultProbability   [0 - 100]
+         * @param creditRating         Rating enum
+         * @param requestedUKEFSupport Aumunt (up to bond value) required to be supported by UKEF
          * @param exporter             contractual party
          * @param ukef                 contractual party
          */
-        public Initiator(String bondID, String bankSupplyContractID, Double turnover, Double net, int riskLevel, Double
-            creditScore, Party exporter, Party ukef){
+        public Initiator(String bondID, String bankSupplyContractID, Double turnover, Double net, int defaultProbability, Rating
+            creditRating, int requestedUKEFSupport, Party exporter, Party ukef){
             this.bondID = bondID;
             this.exporter = exporter;
             this.ukef = ukef;
             this.bankSupplyId = bankSupplyContractID;
             this.exporterTurnover = turnover;
             this.exporterNet = net;
-            this.bankRiskLevel = riskLevel;
-            this.bankCreditScore = creditScore;
+            this.bankDefaultProbability = defaultProbability;
+            this.bankCreditRisk = creditRating;
+            this.requestedUKEFSupport = requestedUKEFSupport;
         }
 
         @Override
@@ -108,7 +111,8 @@ public class BankAssess {
                 throw new FlowException("Assessment of exporter bond can only be done by the bank reported in the bond");
             }
 
-            Bond updBond = new Bond(inputBond.getBondValue(), this.bankSupplyId, this.exporterTurnover, this.exporterNet, this.bankRiskLevel, this.bankCreditScore);
+            Bond updBond = new Bond(inputBond.getBondValue(), inputBond.getBondUKValue(),
+                    this.bankSupplyId, this.exporterTurnover, this.exporterNet, this.bankDefaultProbability, this.bankCreditRisk, this.requestedUKEFSupport);
             UKTFBondState outputBond = inputBond.copy(updBond);
 
             // Stage 2 - verifying trx
@@ -126,7 +130,6 @@ public class BankAssess {
             // Stage 3 - signing trx
             progressTracker.setCurrentStep(SIGNING_TRANSACTION);
             final SignedTransaction partSignedTx = getServiceHub().signInitialTransaction(txBuilder);
-
 
             //Step 4 - gathering trx signs
             progressTracker.setCurrentStep(GATHERING_SIGS);
@@ -197,17 +200,19 @@ public class BankAssess {
                         ContractState output = stx.getTx().getOutputs().get(0).getData();
                         require.using("This must be an UKTF transaction.", output instanceof UKTFBondState);
                         UKTFBondState bond = (UKTFBondState) output;
-                        require.using("The credit score should be between 0 and 4.", bond.getCreditScore() >= 0 && bond.getCreditScore() <= 4);
-                        require.using("The rating level should be one among {0,1,2,3,4,5}.", bond.getRiskLevel() >= 0 && bond.getRiskLevel() <= 5);
+                        require.using("The credit rating should be equal or better than C.", Rating.greaterThanCCC(bond.getCreditRating()));
+                        require.using("The default probability must be less than 15.", bond.getDefaultProbability() <= 15);
                         require.using("The turnover should be greater than zero", bond.getTurnover() >0);
                         return null;
                     });
                 }
             }
 
-
            return subFlow(new SignExpTxFlow(bank, SignTransactionFlow.Companion.tracker()));
         }
     }
+
+
+
 
 }

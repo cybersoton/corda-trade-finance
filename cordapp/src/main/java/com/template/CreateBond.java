@@ -24,7 +24,8 @@ public class CreateBond {
     public static class Initiator extends FlowLogic<SignedTransaction> {
 
         private final String externalBondID;
-        private final Integer bondValue;
+        private final int bondValue;
+        private final int bondUKValue;
         /* the node running the flow is the exporter (it signs the transaction)*/
         private final Party bank;
         private final Party ukef;
@@ -61,9 +62,10 @@ public class CreateBond {
          * @param bank      contractual party
          * @param ukef      contractual party
          */
-        public Initiator(String bondId, Integer bondValue, Party bank, Party ukef) {
+        public Initiator(String bondId, int bondValue, int bondUKValue, Party bank, Party ukef) {
             this.externalBondID = bondId;
             this.bondValue = bondValue;
+            this.bondUKValue = bondUKValue;
             this.bank = bank;
             this.ukef = ukef;
         }
@@ -83,7 +85,9 @@ public class CreateBond {
             //Stage1 - generate transaction
             progressTracker.setCurrentStep(GENERATING_EXP_TRANSACTION);
 
-            UKTFBondState outputState = new UKTFBondState(externalBondID, new Bond(bondValue), getOurIdentity(), bank, ukef);
+            // create bond object
+            UKTFBondState outputState = new UKTFBondState(externalBondID, new Bond(bondValue, bondUKValue), getOurIdentity(), bank, ukef);
+
             List<PublicKey> requiredSigners =  Arrays.asList(getOurIdentity().getOwningKey(), bank.getOwningKey(), ukef.getOwningKey());
             final Command<UKTFContract.Commands.Create> cmd = new Command<>(new UKTFContract.Commands.Create(), requiredSigners);
             final TransactionBuilder txBuilder = new TransactionBuilder(notary)

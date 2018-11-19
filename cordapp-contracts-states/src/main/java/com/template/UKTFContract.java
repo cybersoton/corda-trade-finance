@@ -75,6 +75,7 @@ public class UKTFContract implements Contract {
                 check.using("There should be one output state of type UKTFState.", tx.getOutputs().size() == 1);
                 final UKTFBondState out = tx.outputsOfType(UKTFBondState.class).get(0);
                 check.using("The bond's value must be non-negative.", out.getBondValue() > 0);
+                check.using("The bond's UK value must be equal to or more than 20%.", (out.getBondUKValue()* 100 / out.getBondValue()) >= 20);
 
                 //signers
                 final Party exporter = out.getExporter();

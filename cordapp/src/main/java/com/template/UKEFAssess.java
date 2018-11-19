@@ -192,7 +192,7 @@ public class UKEFAssess {
                         ContractState output = stx.getTx().getOutputs().get(0).getData();
                         require.using("This must be an UKTF transaction.", output instanceof UKTFBondState);
                         UKTFBondState bond = (UKTFBondState) output;
-                        require.using("The UKEF approval must be a boolean value.", !bond.getUKEFSupported() || bond.getUKEFSupported());
+                        require.using("The UKEF support can only be equal to or less than 80% of the bond value.", (bond.getRequestedUKEFsupport() * 100 / bond.getBondValue()) <= 80 );
                         return null;
                     });
                 }

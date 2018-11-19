@@ -44,21 +44,28 @@ $(document).ready(function() {
                 str += " <div class=\"col\">\n"
                 str += "<div class=\"collapse multi-collapse\" id=\"bond" + item.n + "Exporter\">\n"
                 str += "<div class=\"card card-body\">\n"
-                str += "<p> Bond value: " + item.value + "  </p>\n"
+                str += "<p> Bond value: " + item.bondValue + "  </p>\n"
+                str += "<p> Bond UK value: " + item.bondUKValue + "  </p>\n"
                 str += "</div>\n"
                 str += "</div>\n"
                 str += "</div>\n"
                 str += " <div class=\"col\">\n"
                 str += "<div class=\"collapse multi-collapse\" id=\"bond" + item.n + "Bank\">\n"
                 str += "<div class=\"card card-body\">"
-                str += "<p> Credit Score: " + item.creditScore + "  </p>\n"
+                str += "<p> Bank Supply Contract: " + item.bankId + "  </p>\n"
+                str += "<p> Exporter Turnover: " + item.turnover + "  </p>\n"
+                str += "<p> Exporter Net: " + item.net + "  </p>\n"
+                str += "<p> Exporter Default Prob: " + item.defaultProb + "  </p>\n"
+                str += "<p> Exporter Credit Rate: " + item.creditRate + "  </p>\n"
+                str += "<p> UKEF Requested Support: " + item.requestedSupport + "  </p>\n"
                 str += "</div>\n"
                 str += "</div>\n"
                 str += "</div>\n"
                 str += " <div class=\"col\">\n"
                 str += "<div class=\"collapse multi-collapse\" id=\"bond" + item.n + "UKEF\">\n"
                 str += "<div class=\"card card-body\">\n"
-                str += "<p> UKEF Support: " + item.ukef + "  </p>\n"
+                str += "<p> UKEF Supply Contract: " + item.ukefId + "  </p>\n"
+                str += "<p> UKEF Support: " + item.ukefSupport + "  </p>\n"
                 str += "</div>\n"
                 str += "</div>\n"
                 str += "</div>\n"
@@ -120,7 +127,8 @@ $(document).ready(function() {
         $.ajax({
               type: "POST",
               data: {bondId: $('#bond-name').val() ,
-                     bondValue: $('#bond-value').val()},
+                     bondValue: $('#bond-value').val(),
+                     bondUKValue: $('#bond-uk-value').val()},
               url: apiBase + "createBond"
         }).then(function(data) {
            $this.html($this.data('original-text'));
@@ -132,7 +140,7 @@ $(document).ready(function() {
      });
 
     $('#submitBond').on('hidden.bs.modal', function(){
-            $(".modal-body").html("<form><div class=\"form-group\"><label for=\"bond-name\" class=\"form-control-label\">Bond Name:</label><input type=\"text\" class=\"form-control\" id=\"bond-name\"></div><div class=\"form-group\"><label for=\"bond-value\" class=\"form-control-label\">Value:</label><input type=\"text\" class=\"form-control\" id=\"bond-value\"></div></form>");
+            $(".modal-body").html("<form><div class=\"form-group\"><label for=\"bond-name\" class=\"form-control-label\">Bond Name:</label><input type=\"text\" class=\"form-control\" id=\"bond-name\"></div><div class=\"form-group\"><label for=\"bond-value\" class=\"form-control-label\">Value:</label><input type=\"text\" class=\"form-control\" id=\"bond-value\"></div></form><div class=\"form-group\"><label for=\"bond-uk-value\" class=\"form-control-label\">UK Value:</label><input type=\"text\" class=\"form-control\" id=\"bond-uk-value\"></div>");
     });
 
 

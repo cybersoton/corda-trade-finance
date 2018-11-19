@@ -60,7 +60,7 @@
 
             <div class="action"></div>
 
-            <!--EXPORT MODAL PANEL-->
+            <!--EXPORT SUBMIT NEW APP MODAL PANEL-->
 
             <div class="modal fade" id="submitBond" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
@@ -80,6 +80,10 @@
                                 <div class="form-group">
                                     <label for="bond-value" class="form-control-label">Value:</label>
                                     <input type="text" class="form-control" id="bond-value">
+                                </div>
+                                <div class="form-group">
+                                    <label for="bond-uk-value" class="form-control-label">UK Value:</label>
+                                    <input type="text" class="form-control" id="bond-uk-value">
                                 </div>
                             </form>
                         </div>
@@ -168,6 +172,14 @@
                         <div class="modal-body">
                             <form>
                                 <div class="form-group">
+                                    <label for="bank-id" class="form-control-label">Bank Supply Contract:</label>
+                                    <input type="text" class="form-control" id="bank-id">
+                                </div>
+                                <div class="form-group">
+                                    <label for="exporter-turnover" class="form-control-label">Exporter Turnover:</label>
+                                    <input type="text" class="form-control" id="exporter-turnover">
+                                </div>
+                                <div class="form-group">
                                     <label for="exporter-net" class="form-control-label">Exporter Net:</label>
                                     <input type="text" class="form-control" id="exporter-net">
                                 </div>
@@ -176,8 +188,12 @@
                                     <input type="text" class="form-control" id="default-prob">
                                 </div>
                                 <div class="form-group">
-                                    <label for="credit-scoring" class="form-control-label">Credit Scoring:</label>
+                                    <label for="credit-scoring" class="form-control-label">Credit Rate:</label>
                                     <input type="text" class="form-control" id="credit-scoring">
+                                </div>
+                                <div class="form-group">
+                                    <label for="ukef-req-support" class="form-control-label">UKEF Requested Support:</label>
+                                    <input type="text" class="form-control" id="ukef-req-support">
                                 </div>
                             </form>
                         </div>
@@ -206,12 +222,8 @@
                         <div class="modal-body">
                             <form>
                                 <div class="form-group">
-                                    <label for="bond-name" class="form-control-label">Supply Contract:</label>
-                                    <input type="text" class="form-control" id="supply-contract">
-                                </div>
-                                <div class="form-group">
-                                    <label for="bond-value" class="form-control-label">Maximum Liability:</label>
-                                    <input type="text" class="form-control" id="max-liability">
+                                    <label for="ukef-id" class="form-control-label">Supply Contract:</label>
+                                    <input type="text" class="form-control" id="ukef-id">
                                 </div>
                                 <div class="form-group">
                                     <label for="bond-value" class="form-control-label">UKEF Support Required:</label>
