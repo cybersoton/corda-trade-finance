@@ -21,7 +21,7 @@ public class CreateBond {
 
     @InitiatingFlow
     @StartableByRPC
-    public static class Initiator extends FlowLogic<Void> {
+    public static class Initiator extends FlowLogic<SignedTransaction> {
 
         private final String externalBondID;
         private final Integer bondValue;
@@ -75,7 +75,7 @@ public class CreateBond {
 
         @Suspendable
         @Override
-        public Void call() throws FlowException {
+        public SignedTransaction call() throws FlowException {
 
             //Notary for the transaction
             final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
@@ -113,15 +113,13 @@ public class CreateBond {
             //Step 5 - finalising
             progressTracker.setCurrentStep(FINALISING_TRANSACTION);
 
-            subFlow(new FinalityFlow(fullySignedTx));
-
-            return null;
+            return subFlow(new FinalityFlow(fullySignedTx));
         }
 
     }
 
     @InitiatedBy(Initiator.class)
-    public static class CreateBondResponder extends FlowLogic<Void> {
+    public static class CreateBondResponder extends FlowLogic<SignedTransaction> {
 
         private FlowSession exporter;
 
@@ -131,7 +129,7 @@ public class CreateBond {
 
         @Suspendable
         @Override
-        public Void call() throws FlowException {
+        public SignedTransaction call() throws FlowException {
 
             class SignExpTxFlow extends SignTransactionFlow {
 
@@ -152,9 +150,7 @@ public class CreateBond {
             }
 
 
-            subFlow(new SignExpTxFlow(exporter, SignTransactionFlow.Companion.tracker()));
-
-            return null;
+            return subFlow(new SignExpTxFlow(exporter, SignTransactionFlow.Companion.tracker()));
         }
     }
 

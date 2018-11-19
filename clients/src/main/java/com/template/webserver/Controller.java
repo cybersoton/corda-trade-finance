@@ -2,15 +2,18 @@ package com.template.webserver;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.template.Bond;
+import com.template.CreateBond;
 import com.template.UKTFBondState;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.flows.FlowException;
 import net.corda.core.identity.CordaX500Name;
+import net.corda.core.identity.Party;
 import net.corda.core.messaging.CordaRPCOps;
+import net.corda.core.messaging.FlowHandle;
 import net.corda.core.node.NodeInfo;
 import net.corda.core.node.services.Vault;
 import net.corda.core.node.services.vault.QueryCriteria;
+import net.corda.core.transactions.SignedTransaction;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -18,13 +21,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Nullable;
 import java.util.Iterator;
-import java.util.LinkedList;
+
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 
@@ -37,12 +38,18 @@ public class Controller {
     private final static Logger logger = LoggerFactory.getLogger(Controller.class);
 
     private final List<String> serviceNames = ImmutableList.of("Notary");
-
+    private  Party exporter;
+    private  Party bank;
+    private  Party ukef;
 
     public Controller(NodeRPCConnection rpc) {
 
         this.proxy = rpc.proxy;
         this.myLegalName = proxy.nodeInfo().getLegalIdentities().get(0).getName();
+
+        this.exporter = proxy.wellKnownPartyFromX500Name(CordaX500Name.parse("O=Exporter,L=Southampton,C=GB"));
+        this.bank = proxy.wellKnownPartyFromX500Name(CordaX500Name.parse("O=Bank,L=London,C=GB"));
+        this.ukef = proxy.wellKnownPartyFromX500Name(CordaX500Name.parse("O=UKEF,L=London,C=GB"));
 
     }
 
@@ -70,6 +77,43 @@ public class Controller {
                 .map(node -> node.getLegalIdentities().get(0).getName())
                 .filter(name -> !name.equals(myLegalName) && !serviceNames.contains(name.getOrganisation()))
                 .collect(toList()));
+    }
+
+    /**
+     * Register a new bond
+     */
+    @RequestMapping(value = "/createBond", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public JSONObject createBond(@RequestParam("bondId") String bondId,
+                               @RequestParam("bondValue") int bondValue) {
+
+        JSONObject json = new JSONObject();
+
+        if (bondValue <= 0) {
+            json.put("err", "Query parameter 'bondValue' must be non-negative");
+            return json;
+        }
+
+        try {
+            FlowHandle<SignedTransaction> flow_bond = proxy.startFlowDynamic(
+                    CreateBond.Initiator.class,
+                    bondId, bondValue, bank, ukef
+            );
+
+            SignedTransaction trx = flow_bond.getReturnValue().get();
+
+            logger.info(trx.toString());
+
+            json.put("trxId" , trx.getId().toString());
+            return json;
+
+        } catch (Throwable ex) {
+            final String msg = ex.getMessage();
+            logger.error(ex.getMessage(), ex);
+            json.put("err", msg);
+            return json;
+        }
     }
 
 
