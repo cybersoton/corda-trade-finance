@@ -17,70 +17,87 @@ $(document).ready(function() {
             $('.action').append("<button type=\"button\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\"#submitBond\">Submit New Bond Application</button>")
         }
 
-        if (me == "Exporter"){
+        $.ajax({
+            type: "POST",
+            url: apiBase + "bonds"
+        }).then(function(res) {
 
-            console.log("I'm an exporter. I'm retrieving all bond applications")
+            console.log("retrieved all bonds")
 
-            $.ajax({
-                type: "POST",
-                url: apiBase + "bonds"
-            }).then(function(res) {
+            var str = ""
 
-                console.log("retrieved all bonds")
+            res.bonds.forEach(function(item){
+                str += "<li class=\"list-group-item\" id=\"bond\"" + item.n + ">\n"
+                str += "<p><span> Bond Name: " + item.id  + "</span> </p>\n"
+                str += "<p> \n "
+                str += "<button class=\"btn btn-primary\" type=\"button\" data-toggle=\"collapse\" data-target=\"#bond" + item.n + "Exporter\" aria-expanded=\"false\" aria-controls=\"bond" + item.n + "Exporter\">\n"
+                str += "Exporter data"
+                str += "</button>\n"
+                str += "<button class=\"btn btn-success\" type=\"button\" data-toggle=\"collapse\" data-target=\"#bond" + item.n + "Bank\" aria-expanded=\"false\" aria-controls=\"bond" + item.n + "Bank\">\n"
+                str += "Bank data"
+                str += "</button>\n"
+                str += "<button class=\"btn btn-info\" type=\"button\" data-toggle=\"collapse\" data-target=\"#bond" + item.n + "UKEF\" aria-expanded=\"false\" aria-controls=\"bond" + item.n + "UKEF\">\n"
+                str += "UKEF data"
+                str += "</button>\n"
+                str += "</p> \n "
+                str += " <div class=\"row\">\n"
+                str += " <div class=\"col\">\n"
+                str += "<div class=\"collapse multi-collapse\" id=\"bond" + item.n + "Exporter\">\n"
+                str += "<div class=\"card card-body\">\n"
+                str += "<p> Bond value: " + item.value + "  </p>\n"
+                str += "</div>\n"
+                str += "</div>\n"
+                str += "</div>\n"
+                str += " <div class=\"col\">\n"
+                str += "<div class=\"collapse multi-collapse\" id=\"bond" + item.n + "Bank\">\n"
+                str += "<div class=\"card card-body\">"
+                str += "<p> Credit Score: " + item.creditScore + "  </p>\n"
+                str += "</div>\n"
+                str += "</div>\n"
+                str += "</div>\n"
+                str += " <div class=\"col\">\n"
+                str += "<div class=\"collapse multi-collapse\" id=\"bond" + item.n + "UKEF\">\n"
+                str += "<div class=\"card card-body\">\n"
+                str += "<p> UKEF Support: " + item.ukef + "  </p>\n"
+                str += "</div>\n"
+                str += "</div>\n"
+                str += "</div>\n"
+                str += "</div>\n"
 
-                var str = ""
+                //TODO TO CHECK HERE THE VIEW !!!!!
 
-                res.bonds.forEach(function(item){
-                    str += "<li class=\"list-group-item\" id=\"bond\"" + item.n + ">\n"
-                    str += "<p><span> Bond Name: " + item.id  + "</span> </p>\n"
-                    str += "<p> \n "
-                    str += "<button class=\"btn btn-primary\" type=\"button\" data-toggle=\"collapse\" data-target=\"#bond" + item.n + "Exporter\" aria-expanded=\"false\" aria-controls=\"bond" + item.n + "Exporter\">\n"
-                    str += "Exporter data"
-                    str += "</button>\n"
-                    str += "<button class=\"btn btn-success\" type=\"button\" data-toggle=\"collapse\" data-target=\"#bond" + item.n + "Bank\" aria-expanded=\"false\" aria-controls=\"bond" + item.n + "Bank\">\n"
-                    str += "Bank data"
-                    str += "</button>\n"
-                    str += "<button class=\"btn btn-info\" type=\"button\" data-toggle=\"collapse\" data-target=\"#bond" + item.n + "UKEF\" aria-expanded=\"false\" aria-controls=\"bond" + item.n + "UKEF\">\n"
-                    str += "UKEF data"
-                    str += "</button>\n"
-                    str += "</p> \n "
-                    str += " <div class=\"row\">\n"
-                    str += " <div class=\"col\">\n"
-                    str += "<div class=\"collapse multi-collapse\" id=\"bond" + item.n + "Exporter\">\n"
-                    str += "<div class=\"card card-body\">\n"
-                    str += "<p> Bond value: " + item.value + "  </p>\n"
-                    str += "</div>\n"
-                    str += "</div>\n"
-                    str += "</div>\n"
-                    str += " <div class=\"col\">\n"
-                    str += "<div class=\"collapse multi-collapse\" id=\"bond" + item.n + "Bank\">\n"
-                    str += "<div class=\"card card-body\">"
-                    str += "<p> Credit Score: " + item.creditScore + "  </p>\n"
-                    str += "</div>\n"
-                    str += "</div>\n"
-                    str += "</div>\n"
-                    str += " <div class=\"col\">\n"
-                    str += "<div class=\"collapse multi-collapse\" id=\"bond" + item.n + "UKEF\">\n"
-                    str += "<div class=\"card card-body\">\n"
-                    str += "<p> UKEF Support: " + item.ukef + "  </p>\n"
-                    str += "</div>\n"
-                    str += "</div>\n"
-                    str += "</div>\n"
-                    str += "</div>\n"
-                });
+                str += "<div class=\"row mt-3\">\n"
+                str += "<div class=\"col align-self-center\">\n"
+                str += "<button class=\"btn btn-success bank\" type=\"button\" data-toggle=\"modal\" data-target=\"#bankAssess\" value=\"" + item.id + "\">\n"
+                str += "Bank Assess\n"
+                str += "</button>\n"
+                str += "</div>\n"
+                str += "</div>\n"
 
-                $('#bond').append(str);
+                //TODO TO CHECK HERE THE VIEW !!!!!
+
+                str += "<div class=\"row mt-3\">\n"
+                str += "<div class=\"col align-self-center\">\n"
+                str += "<button class=\"btn btn-info ukef\" type=\"button\" data-toggle=\"modal\" data-target=\"#ukefAssess\" value=\"" + item.id + "\">\n"
+                str += "UKEF Assess\n"
+                str += "</button>\n"
+                str += "</div>\n"
+                str += "</div>\n"
+
+
             });
 
-        }
+            $('#bond').append(str);
+        });
 
-        if (me == "UKEF"){
-                $('.bond').append("<li> ciao ukef </li");
-        }
-
-        if (me == "Bank"){
-                 $('.bond').append("<li> ciao bank </li");
-        }
+//
+//        if (me == "UKEF"){
+//                $('.bond').append("<li> ciao ukef </li");
+//        }
+//
+//        if (me == "Bank"){
+//                 $('.bond').append("<li> ciao bank </li");
+//        }
     });
 
     $.ajax({
@@ -90,6 +107,7 @@ $(document).ready(function() {
        $('.otherNode1').append(data.peers[0].organisation);
        $('.otherNode2').append(data.peers[1].organisation);
     });
+
 
     $('#submit-form-Bond').on('click', function(e){
         e.preventDefault();
@@ -110,13 +128,23 @@ $(document).ready(function() {
            $('#loading-indicator').hide();
            alert("Bond Registered! Transaction id: \"" + data.trxId + "\"");
            console.log(data.trxId)
-    });
+        });
+     });
 
     $('#submitBond').on('hidden.bs.modal', function(){
             $(".modal-body").html("<form><div class=\"form-group\"><label for=\"bond-name\" class=\"form-control-label\">Bond Name:</label><input type=\"text\" class=\"form-control\" id=\"bond-name\"></div><div class=\"form-group\"><label for=\"bond-value\" class=\"form-control-label\">Value:</label><input type=\"text\" class=\"form-control\" id=\"bond-value\"></div></form>");
     });
-});
 
+
+    $('body').on('click', '.btn.btn-success.bank', function() {
+        var val = $(this).attr("value");
+        $('#bankAssessBondId').append(val)
+    });
+
+    $('body').on('click', '.btn.btn-info.ukef', function() {
+        var val = $(this).attr("value");
+        $('#ukefAssessBondId').append(val)
+    });
 
 });
 

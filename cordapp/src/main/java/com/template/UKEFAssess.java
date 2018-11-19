@@ -26,10 +26,10 @@ public class UKEFAssess {
 
     @InitiatingFlow
     @StartableByRPC
-    public static class Initiator extends FlowLogic<Void>{
+    public static class Initiator extends FlowLogic<SignedTransaction>{
 
         private final String bondID;
-        /* the node running the flow is the UKEF (these sign the transaction) */
+        /* the node running the flow is the UKEF (it signs the transaction) */
         private final Party exporter;
         private final Party bank;
         private String UKEFSupplyId;
@@ -86,7 +86,7 @@ public class UKEFAssess {
 
         @Suspendable
         @Override
-        public Void call () throws FlowException {
+        public SignedTransaction call () throws FlowException {
 
 
             //Notary for the transaction
@@ -137,9 +137,7 @@ public class UKEFAssess {
             //Step 5 - finalising
             progressTracker.setCurrentStep(FINALISING_TRANSACTION);
 
-            subFlow(new FinalityFlow(fullySignedTx));
-
-            return null;
+            return subFlow(new FinalityFlow(fullySignedTx));
         }
 
 
@@ -168,7 +166,7 @@ public class UKEFAssess {
     }
 
     @InitiatedBy(Initiator.class)
-    public static class UKEFAssessResponder extends FlowLogic<Void> {
+    public static class UKEFAssessResponder extends FlowLogic<SignedTransaction> {
 
         private FlowSession ukef;
 
@@ -178,7 +176,7 @@ public class UKEFAssess {
 
         @Suspendable
         @Override
-        public Void call() throws FlowException {
+        public SignedTransaction call() throws FlowException {
 
             class SignExpTxFlow extends SignTransactionFlow {
 
@@ -201,9 +199,7 @@ public class UKEFAssess {
             }
 
 
-            subFlow(new SignExpTxFlow(ukef, SignTransactionFlow.Companion.tracker()));
-
-            return null;
+            return subFlow(new SignExpTxFlow(ukef, SignTransactionFlow.Companion.tracker()));
         }
     }
 

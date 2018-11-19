@@ -25,7 +25,7 @@ public class CreateBond {
 
         private final String externalBondID;
         private final Integer bondValue;
-        /* the node running the flow is the exporter (these sign the transaction)*/
+        /* the node running the flow is the exporter (it signs the transaction)*/
         private final Party bank;
         private final Party ukef;
 

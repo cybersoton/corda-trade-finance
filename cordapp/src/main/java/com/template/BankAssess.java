@@ -12,7 +12,6 @@ import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 import net.corda.core.utilities.ProgressTracker;
 import net.corda.core.utilities.ProgressTracker.Step;
-//import org.apache.log4j.Logger;
 
 import java.security.PublicKey;
 import java.util.Arrays;
@@ -25,9 +24,9 @@ public class BankAssess {
 
     @InitiatingFlow
     @StartableByRPC
-    public static class Initiator extends FlowLogic<Void>{
+    public static class Initiator extends FlowLogic<SignedTransaction>{
         private final String bondID;
-        /* the node running the flow is the bank (these sign the transaction)*/
+        /* the node running the flow is the bank (it signs the transaction)*/
         private final Party exporter;
         private final Party ukef;
         private final String bankSupplyId;
@@ -92,7 +91,7 @@ public class BankAssess {
 
         @Suspendable
         @Override
-        public Void call () throws FlowException {
+        public SignedTransaction call () throws FlowException {
 
 
             //Notary for the transaction
@@ -142,9 +141,8 @@ public class BankAssess {
             //Step 5 - finalising
             progressTracker.setCurrentStep(FINALISING_TRANSACTION);
 
-            subFlow(new FinalityFlow(fullySignedTx));
+            return subFlow(new FinalityFlow(fullySignedTx));
 
-            return null;
         }
 
 
@@ -173,7 +171,7 @@ public class BankAssess {
     }
 
     @InitiatedBy(Initiator.class)
-    public static class BankAssessResponder extends FlowLogic<Void> {
+    public static class BankAssessResponder extends FlowLogic<SignedTransaction> {
 
         private FlowSession bank;
 
@@ -183,7 +181,7 @@ public class BankAssess {
 
         @Suspendable
         @Override
-        public Void call() throws FlowException {
+        public SignedTransaction call() throws FlowException {
 
             class SignExpTxFlow extends SignTransactionFlow {
 
@@ -208,9 +206,7 @@ public class BankAssess {
             }
 
 
-            subFlow(new SignExpTxFlow(bank, SignTransactionFlow.Companion.tracker()));
-
-            return null;
+           return subFlow(new SignExpTxFlow(bank, SignTransactionFlow.Companion.tracker()));
         }
     }
 

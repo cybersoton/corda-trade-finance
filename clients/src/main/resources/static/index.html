@@ -15,7 +15,6 @@
     <!--<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 
-
     <script src="app.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -61,6 +60,7 @@
 
             <div class="action"></div>
 
+            <!--EXPORT MODAL PANEL-->
 
             <div class="modal fade" id="submitBond" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
@@ -90,37 +90,7 @@
                     </div>
                 </div>
             </div>
-
-            <!--<div class="modal fade" id="newApp" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"-->
-                 <!--aria-hidden="true">-->
-                <!--<div class="modal-dialog" role="document">-->
-                    <!--<div class="modal-content">-->
-                        <!--<div class="modal-header text-center">-->
-                            <!--<h4 class="modal-title w-100 font-weight-bold">New Bond Application</h4>-->
-                            <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
-                                <!--<span aria-hidden="true">&times;</span>-->
-                            <!--</button>-->
-                        <!--</div>-->
-                        <!--<div class="modal-body mx-3">-->
-                            <!--<div class="md-form mb-5">-->
-                                <!--<i class="fa fa-envelope prefix grey-text"></i>-->
-                                <!--<input type="text" id="defaultForm-id" class="form-control validate">-->
-                                <!--<label data-error="wrong" data-success="right" for="defaultForm-id">Bond ID</label>-->
-                            <!--</div>-->
-
-                            <!--<div class="md-form mb-4">-->
-                                <!--<i class="fa fa-lock prefix grey-text"></i>-->
-                                <!--<input type="text" id="defaultForm-value" class="form-control validate">-->
-                                <!--<label data-error="wrong" data-success="right" for="defaultForm-value">Bond Value</label>-->
-                            <!--</div>-->
-
-                        <!--</div>-->
-                        <!--<div class="modal-footer d-flex justify-content-center">-->
-                            <!--<button class="btn btn-light" id="newBondSubmit" type="submit">Submit!</button>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
+            <!--END EXPORT MODAL PANEL-->
 
         </div>
     </div>
@@ -173,9 +143,92 @@
                                 <!--</div>-->
                             <!--</div>-->
                         <!--</div>-->
+                        <!--<div class="row mt-3">-->
+                            <!--<div class="col align-self-center">-->
+                                <!--<button class="btn btn-success" type="button" data-toggle="modal" data-target="#bankAssess">-->
+                                    <!--Bank Assess-->
+                                <!--</button>-->
+                            <!--</div>-->
+                        <!--</div>-->
                     <!--</li>-->
                 </ul>
+            </ul>
+
+            <!--BANK MODAL PANEL-->
+
+            <div class="modal fade" id="bankAssess" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabelBank" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabelBank">Bank Assess for "<span id="bankAssessBondId"></span>"</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="exporter-net" class="form-control-label">Exporter Net:</label>
+                                    <input type="text" class="form-control" id="exporter-net">
+                                </div>
+                                <div class="form-group">
+                                    <label for="default-prob" class="form-control-label">Default Probability:</label>
+                                    <input type="text" class="form-control" id="default-prob">
+                                </div>
+                                <div class="form-group">
+                                    <label for="credit-scoring" class="form-control-label">Credit Scoring:</label>
+                                    <input type="text" class="form-control" id="credit-scoring">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" id="submit-form-Bank">Submit</button>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!--END BANK MODAL PANEL-->
+
+
+            <!--UKEF MODAL PANEL-->
+
+            <div class="modal fade" id="ukefAssess" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabelUKEF" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabelUKEF">UKEF Assess "<span id="ukefAssessBondId"></span>"</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="bond-name" class="form-control-label">Supply Contract:</label>
+                                    <input type="text" class="form-control" id="supply-contract">
+                                </div>
+                                <div class="form-group">
+                                    <label for="bond-value" class="form-control-label">Maximum Liability:</label>
+                                    <input type="text" class="form-control" id="max-liability">
+                                </div>
+                                <div class="form-group">
+                                    <label for="bond-value" class="form-control-label">UKEF Support Required:</label>
+                                    <input type="text" class="form-control" id="ukef-support">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" id="submit-form-UKEF">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--END UKEF MODAL PANEL-->
+
         </div>
     </div>
     <div class="row mt-3">
