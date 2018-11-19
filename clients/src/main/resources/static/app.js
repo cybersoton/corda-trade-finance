@@ -91,21 +91,32 @@ $(document).ready(function() {
        $('.otherNode2').append(data.peers[1].organisation);
     });
 
-});
-
-$('#submitApp').on('click', function(e){
-    e.preventDefault();
-    $.ajax({
-          type: "POST",
-          data: {bondId: $('#bond-name').val() ,
-                 bondValue: $('#bond-value').val()},
-          url: apiBase + "createBond"
-    }).then(function(data) {
-       alert("Bond Registered! Transaction id: \"" + data.id + "\"");
-       console.log(data.it)
-       //$('#submitBond').modal('hide');
+    $('#submit-form-Bond').on('click', function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var loadingText = '<i class="fa fa-circle-o-notch fa-spin"></i> Creating transaction ...';
+        if ($(this).html() !== loadingText) {
+          $this.data('original-text', $(this).html());
+          $this.html(loadingText);
+        }
+        $.ajax({
+              type: "POST",
+              data: {bondId: $('#bond-name').val() ,
+                     bondValue: $('#bond-value').val()},
+              url: apiBase + "createBond"
+        }).then(function(data) {
+           $this.html($this.data('original-text'));
+           $('#submitBond').modal('hide');
+           $('#loading-indicator').hide();
+           alert("Bond Registered! Transaction id: \"" + data.trxId + "\"");
+           console.log(data.trxId)
     });
 
+    $('#submitBond').on('hidden.bs.modal', function(){
+            $(".modal-body").html("<form><div class=\"form-group\"><label for=\"bond-name\" class=\"form-control-label\">Bond Name:</label><input type=\"text\" class=\"form-control\" id=\"bond-name\"></div><div class=\"form-group\"><label for=\"bond-value\" class=\"form-control-label\">Value:</label><input type=\"text\" class=\"form-control\" id=\"bond-value\"></div></form>");
+    });
+});
 
 
 });
+
