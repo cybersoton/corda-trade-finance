@@ -11,10 +11,24 @@ $(document).ready(function() {
         url: apiBase + "me"
     }).then(function(data) {
        me = data.me.organisation;
-       $('.thisNode').append(data.me.organisation);
 
         if (me == "Exporter"){
             $('.action').append("<button type=\"button\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\"#submitBond\">Submit New Bond Application</button>")
+            $('#views').append("<button type=\"button\" class=\"btn btn-outline-primary\">" + me + "</button>");
+            $('#views').append("<button type=\"button\" class=\"btn btn-outline-secondary\"> Bank </button>");
+            $('#views').append("<button type=\"button\" class=\"btn btn-outline-secondary\"> UKEF </button>");
+        }
+
+        if (me == "Bank"){
+            $('#views').append("<button type=\"button\" class=\"btn btn-outline-secondary\"> Exporter </button>");
+            $('#views').append("<button type=\"button\" class=\"btn btn-outline-primary\">" + me + "</button>");
+            $('#views').append("<button type=\"button\" class=\"btn btn-outline-secondary\"> UKEF </button>");
+        }
+
+        if (me == "UKEF"){
+            $('#views').append("<button type=\"button\" class=\"btn btn-outline-secondary\"> Exporter </button>");
+            $('#views').append("<button type=\"button\" class=\"btn btn-outline-secondary\"> Bank </button>");
+            $('#views').append("<button type=\"button\" class=\"btn btn-outline-primary\">" + me + "</button>");
         }
 
         $.ajax({
@@ -71,40 +85,32 @@ $(document).ready(function() {
                 str += "</div>\n"
                 str += "</div>\n"
 
-                //TODO TO CHECK HERE THE VIEW !!!!!
+                if (me == "Bank"){
+                    str += "<div class=\"row mt-3\">\n"
+                    str += "<div class=\"col align-self-center\">\n"
+                    str += "<button class=\"btn btn-success bank\" type=\"button\" data-toggle=\"modal\" data-target=\"#bankAssess\" value=\"" + item.id + "\">\n"
+                    str += "Bank Assess\n"
+                    str += "</button>\n"
+                    str += "</div>\n"
+                    str += "</div>\n"
+                }
 
-                str += "<div class=\"row mt-3\">\n"
-                str += "<div class=\"col align-self-center\">\n"
-                str += "<button class=\"btn btn-success bank\" type=\"button\" data-toggle=\"modal\" data-target=\"#bankAssess\" value=\"" + item.id + "\">\n"
-                str += "Bank Assess\n"
-                str += "</button>\n"
-                str += "</div>\n"
-                str += "</div>\n"
-
-                //TODO TO CHECK HERE THE VIEW !!!!!
-
-                str += "<div class=\"row mt-3\">\n"
-                str += "<div class=\"col align-self-center\">\n"
-                str += "<button class=\"btn btn-info ukef\" type=\"button\" data-toggle=\"modal\" data-target=\"#ukefAssess\" value=\"" + item.id + "\">\n"
-                str += "UKEF Assess\n"
-                str += "</button>\n"
-                str += "</div>\n"
-                str += "</div>\n"
-
+                if (me == "UKEF"){
+                    str += "<div class=\"row mt-3\">\n"
+                    str += "<div class=\"col align-self-center\">\n"
+                    str += "<button class=\"btn btn-info ukef\" type=\"button\" data-toggle=\"modal\" data-target=\"#ukefAssess\" value=\"" + item.id + "\">\n"
+                    str += "UKEF Assess\n"
+                    str += "</button>\n"
+                    str += "</div>\n"
+                    str += "</div>\n"
+                }
 
             });
 
             $('#bond').append(str);
         });
 
-//
-//        if (me == "UKEF"){
-//                $('.bond').append("<li> ciao ukef </li");
-//        }
-//
-//        if (me == "Bank"){
-//                 $('.bond').append("<li> ciao bank </li");
-//        }
+
     });
 
     $.ajax({
@@ -134,8 +140,73 @@ $(document).ready(function() {
            $this.html($this.data('original-text'));
            $('#submitBond').modal('hide');
            $('#loading-indicator').hide();
-           alert("Bond Registered! Transaction id: \"" + data.trxId + "\"");
-           console.log(data.trxId)
+//           console.log(data.trxId)
+           if(!alert("Bond Registered! Transaction id: \"" + data.trxId + "\"")){
+               window.location.reload();
+           }
+
+        });
+     });
+
+    $('#submit-form-Bank').on('click', function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var loadingText = '<i class="fa fa-circle-o-notch fa-spin"></i> Creating transaction ...';
+        if ($(this).html() !== loadingText) {
+          $this.data('original-text', $(this).html());
+          $this.html(loadingText);
+        }
+        var bondId = document.getElementById('bankAssessBondId').innerHTML
+        $.ajax({
+              type: "POST",
+              data: {bondId: bondId,
+                     bankId: $('#bank-id').val(),
+                     turnover: $('#exporter-turnover').val(),
+                     net: $('#exporter-net').val(),
+                     defaultProb: $('#default-prob').val(),
+                     rating: $('#credit-rate').val(),
+                     requestedUKEFSupport: $('#ukef-req-support').val()},
+              url: apiBase + "bankAssess"
+        }).then(function(data) {
+           console.log('CIAO1');
+           $this.html($this.data('original-text'));
+           $('#bankAssess').modal('hide');
+           $('#loading-indicator').hide();
+//           console.log(data.trxId)
+           if(!alert("Bank Assessment Registered! Transaction id: \"" + data.trxId + "\"")){
+               window.location.reload();
+           }
+        }, function(err){
+            console.log(err);
+        });
+     });
+
+
+    $('#submit-form-UKEF').on('click', function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var loadingText = '<i class="fa fa-circle-o-notch fa-spin"></i> Creating transaction ...';
+        if ($(this).html() !== loadingText) {
+          $this.data('original-text', $(this).html());
+          $this.html(loadingText);
+        }
+        $.ajax({
+              type: "POST",
+              data: {bondId: document.getElementById('ukefAssessBondId').innerHTML ,
+                     ukefId: $('#ukef-id').val(),
+                     isUKEFSupported: $('#ukef-support').val()},
+              url: apiBase + "ukefAssess"
+        }).then(function(data) {
+           $this.html($this.data('original-text'));
+           $('#ukefAssess').modal('hide');
+           $('#loading-indicator').hide();
+//           console.log(data.trxId)
+           if(!alert("UKEF Assessment Registered! Transaction id: \"" + data.trxId + "\"")){
+               window.location.reload();
+           }
+
+        }, function(err){
+           console.log(err);
         });
      });
 
