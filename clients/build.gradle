@@ -40,8 +40,22 @@ task runTemplateClient(type: JavaExec) {
     args 'localhost:10006', 'user1', 'test'
 }
 
-task runTemplateServer(type: JavaExec) {
+task runTemplateServerExporter(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = 'com.template.webserver.Starter'
     args '--server.port=10050', '--config.rpc.host=localhost', '--config.rpc.port=10006', '--config.rpc.username=user1', '--config.rpc.password=test'
+}
+
+
+task runTemplateServerBank(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'com.template.webserver.Starter'
+    args '--server.port=10051', '--config.rpc.host=localhost', '--config.rpc.port=10009', '--config.rpc.username=user1', '--config.rpc.password=test'
+}
+
+
+task runTemplateServerUKEF(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'com.template.webserver.Starter'
+    args '--server.port=10052', '--config.rpc.host=localhost', '--config.rpc.port=10012', '--config.rpc.username=user1', '--config.rpc.password=test'
 }

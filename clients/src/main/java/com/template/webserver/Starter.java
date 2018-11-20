@@ -11,6 +11,8 @@ import static org.springframework.boot.WebApplicationType.SERVLET;
  */
 @SpringBootApplication
 public class Starter {
+
+
     /**
      * Starts our Spring Boot application.
      */

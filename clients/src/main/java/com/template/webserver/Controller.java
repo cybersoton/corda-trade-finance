@@ -2,8 +2,7 @@ package com.template.webserver;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.template.CreateBond;
-import com.template.UKTFBondState;
+import com.template.*;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.identity.CordaX500Name;
 import net.corda.core.identity.Party;
@@ -94,6 +93,11 @@ public class Controller {
             return json;
         }
 
+        if (bondUKValue > bondValue || bondUKValue <= 0){
+            json.put("err", "Query parameter 'bondUKValue' must be non-negative and less then or equal to the bond value");
+            return json;
+        }
+
         try {
             FlowHandle<SignedTransaction> flow_bond = proxy.startFlowDynamic(
                     CreateBond.Initiator.class,
@@ -115,18 +119,78 @@ public class Controller {
         }
     }
 
-//
-//    /**
-//     * Register bank assess
-//     */
-//    @RequestMapping(value = "/createBond", method = RequestMethod.POST)
-//    @ResponseStatus(HttpStatus.OK)
-//    @ResponseBody
-//    public JSONObject createBond(@RequestParam("bondId") String bondId,
-//                                 @RequestParam("bondValue") int bondValue) {
-//
-//
-//    }
+    /**
+     * Register bank assess
+     */
+    @RequestMapping(value = "/bankAssess", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public JSONObject bankAssess(@RequestParam("bondId") String bondId,
+                                 @RequestParam("bankId") String bankId,
+                                 @RequestParam("turnover") Double turnover,
+                                 @RequestParam("net") Double net,
+                                 @RequestParam("defaultProb") int defaultProb,
+                                 @RequestParam("rating") Rating rating,
+                                 @RequestParam("requestedUKEFSupport") int requestedUKEFSupport) {
+
+        JSONObject json = new JSONObject();
+
+        try {
+            FlowHandle<SignedTransaction> flow_bond = proxy.startFlowDynamic(
+                    BankAssess.Initiator.class,
+                    bondId, bankId, turnover, net, defaultProb, rating, requestedUKEFSupport, exporter, ukef
+            );
+
+            SignedTransaction trx = flow_bond.getReturnValue().get();
+
+            logger.info(trx.toString());
+
+            json.put("trxId" , trx.getId().toString());
+            return json;
+
+        } catch (Throwable ex) {
+            final String msg = ex.getMessage();
+            logger.error(ex.getMessage(), ex);
+            json.put("err", msg);
+            return json;
+        }
+
+    }
+
+
+    /**
+     * Register ukef assess
+     */
+    @RequestMapping(value = "/ukefAssess", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public JSONObject ukefAssess(@RequestParam("bondId") String bondId,
+                                 @RequestParam("ukefId") String ukefId,
+                                 @RequestParam("isUKEFSupported") boolean isUKEFSupported) {
+
+        JSONObject json = new JSONObject();
+
+        try {
+            FlowHandle<SignedTransaction> flow_bond = proxy.startFlowDynamic(
+                    UKEFAssess.Initiator.class,
+                    bondId, ukefId, isUKEFSupported, exporter, bank
+            );
+
+            SignedTransaction trx = flow_bond.getReturnValue().get();
+
+            logger.info(trx.toString());
+
+            json.put("trxId" , trx.getId().toString());
+            return json;
+
+        } catch (Throwable ex) {
+            final String msg = ex.getMessage();
+            logger.error(ex.getMessage(), ex);
+            json.put("err", msg);
+            return json;
+        }
+
+    }
 
 
     /**
