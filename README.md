@@ -19,10 +19,13 @@ To set up the Corda application, it is needed to compile via [Gradle](https://gr
 $ ./gradlew clean deployNodes
 $ build/nodes/runnodes
 ```
-To set up the RPC servers
+To set up and run the web servers (one for each party)
 ```
-$ ./gradlew runTemplateServer
+$ ./gradlew runTemplateServerExporter
+$ ./gradlew runTemplateServerBank
+$ ./gradlew runTemplateServerUKEF
 ``` 
+that enable the webapp likned to the Cordapp on http://localhost:10050/ (for the Exporter) http://localhost:10051/ (for the Bank) http://localhost:10052/ (for UKEF).
 
 ## Usage 
 The application involved three parties: 
