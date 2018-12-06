@@ -14,7 +14,7 @@ To download the application, execure the following commands
   $ git clone https://github.com/cybersoton/corda-export-finance.git
   $ cd corda-export-finance
 ```
-To set up the Corda application, it is needed to compile via (Gradle)[https://gradle.org] 
+To set up the Corda application, it is needed to compile via [Gradle](https://gradle.org)
 ``` 
 $ ./gradlew clean deployNodes
 $ build/nodes/runnodes
