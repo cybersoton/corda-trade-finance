@@ -1,5 +1,5 @@
 
-# Corda for Export Finance
+# Corda for Uk Trade Finance
 
 This repo contains the sources of Java CorDapp developed together with the [UK Export Finance (UKEF)](https://www.gov.uk/government/organisations/uk-export-finance), as part of the [Department of International Trade (DIT)](https://www.gov.uk/government/organisations/department-for-international-trade). 
 
